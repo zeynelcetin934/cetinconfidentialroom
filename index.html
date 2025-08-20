@@ -3,70 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bakkal Veresiye Paneli - Ultimate</title>
+<title>Bakkal Veresiye Paneli - Gelişmiş</title>
 <style>
-/* ================= Temel Stil ================= */
-body{
-  margin:0;
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color:#0b0b0b;
-  color:#f5f5f5;
-  overflow-x:hidden;
-}
+/* Temel stil */
+body{margin:0;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:#0b0b0b;color:#f5f5f5;}
 .hidden{display:none;}
 button,input{border:none;border-radius:6px;outline:none;font-size:16px;}
 button{cursor:pointer;transition:all 0.2s;}
 button:hover{transform:scale(1.05);}
 a{text-decoration:none;color:inherit;}
-
-/* ================= Giriş Ekranı ================= */
-#loginScreen{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;
-  background:linear-gradient(135deg,#111,#000);
-}
-#loginScreen h1{
-  font-size:48px;margin-bottom:20px;color:gold;text-shadow:0 0 12px #FFD700,0 0 20px #fff;
-}
+#loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#111,#000);}
+#loginScreen h1{font-size:48px;margin-bottom:20px;color:gold;text-shadow:0 0 12px #FFD700,0 0 20px #fff;}
 #loginScreen input{padding:15px;width:280px;margin-bottom:20px;background:#222;color:#fff;}
-#loginScreen button{
-  background:gold;color:#0d0d0d;padding:15px 25px;font-weight:bold;font-size:18px;
-  border-radius:10px;box-shadow:0 0 12px rgba(255,215,0,0.6);
-}
+#loginScreen button{background:gold;color:#0d0d0d;padding:15px 25px;font-weight:bold;font-size:18px;border-radius:10px;box-shadow:0 0 12px rgba(255,215,0,0.6);}
 #error{color:red;margin-top:10px;font-weight:bold;text-shadow:0 0 5px red;}
-
-/* ================= Ana Ekran ================= */
 #mainScreen{padding:20px;animation:fadeIn 0.5s;}
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-
-header{
-  display:flex;justify-content:space-between;align-items:center;
-  background-color:#1a1a1a;padding:20px;border-radius:12px;margin-bottom:20px;
-  box-shadow:0 0 15px rgba(255,215,0,0.4);
-}
+header{display:flex;justify-content:space-between;align-items:center;background:#1a1a1a;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 0 15px rgba(255,215,0,0.4);}
 header h2{color:gold;text-shadow:0 0 12px #FFD700;font-size:28px;}
-header button{
-  background:#ffcc00;color:#0d0d0d;padding:10px 18px;font-weight:bold;
-  border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.5);
-}
+header button{background:#ffcc00;color:#0d0d0d;padding:10px 18px;font-weight:bold;border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.5);}
 section{margin-bottom:30px;}
 .customer-list{display:flex;flex-direction:column;gap:12px;}
-.customer-card{
-  background:#222;padding:15px 20px;border-radius:10px;
-  display:flex;justify-content:space-between;align-items:center;
-  transition:all 0.3s;
-  box-shadow:0 0 8px rgba(0,0,0,0.5);
-  position:relative;
-}
+.customer-card{background:#222;padding:15px 20px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s;box-shadow:0 0 8px rgba(0,0,0,0.5);position:relative;}
 .customer-card:hover{background:#333;transform:scale(1.02);}
 .customer-card .debt{font-weight:bold;color:gold;}
-.customer-card .status{position:absolute;top:10px;right:10px;font-weight:bold;padding:2px 6px;border-radius:4px;color:#000;}
-
-/* ================= Detay Sayfası ================= */
-#customerDetail{
-  background:#1e1e1e;padding:25px;border-radius:14px;
-  max-width:550px;margin:auto;animation:fadeSlide 0.4s;
-  box-shadow:0 0 20px rgba(255,215,0,0.5);
-}
+.customer-card .status{position:absolute;top:10px;right:60px;font-weight:bold;padding:2px 6px;border-radius:4px;color:#000;}
+.customer-card .delete-btn{position:absolute;top:10px;right:10px;background:red;color:#fff;padding:2px 6px;font-size:12px;border-radius:4px;cursor:pointer;}
+#customerDetail{background:#1e1e1e;padding:25px;border-radius:14px;max-width:550px;margin:auto;animation:fadeSlide 0.4s;box-shadow:0 0 20px rgba(255,215,0,0.5);}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
 #customerDetail h2{color:gold;margin-bottom:10px;text-shadow:0 0 8px #FFD700;}
 #customerDetail p{font-size:18px;margin-bottom:15px;}
@@ -74,44 +37,28 @@ section{margin-bottom:30px;}
 #customerDetail li{padding:10px 0;border-bottom:1px solid #333;display:flex;justify-content:space-between;}
 .payment-section{display:flex;gap:12px;margin-top:15px;}
 .payment-section input{flex:1;padding:10px;border-radius:8px;background:#333;color:#fff;}
-.payment-section button{
-  background:gold;color:#0d0d0d;font-weight:bold;
-  box-shadow:0 0 8px rgba(255,215,0,0.5);
-}
-
-/* ================= Grafik ================= */
+.payment-section button{background:gold;color:#0d0d0d;font-weight:bold;box-shadow:0 0 8px rgba(255,215,0,0.5);}
 #stats{background:#222;padding:20px;border-radius:12px;max-width:550px;margin:auto;box-shadow:0 0 12px rgba(255,215,0,0.3);margin-top:20px;}
 canvas{background:#111;border-radius:10px;padding:10px;}
-
-/* ================= Popup yeni müşteri ================= */
-#popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);
-display:flex;justify-content:center;align-items:center;visibility:hidden;opacity:0;transition:opacity 0.3s;}
+#popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;justify-content:center;align-items:center;visibility:hidden;opacity:0;transition:opacity 0.3s;}
 #popup.show{visibility:visible;opacity:1;}
 #popup-content{background:#1a1a1a;padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;box-shadow:0 0 20px rgba(255,215,0,0.6);}
-#popup-content input{padding:14px;margin-bottom:15px;background:#333;color:#fff;border-radius:8px;font-size:16px;}
+#popup-content input{padding:14px;margin-bottom:10px;background:#333;color:#fff;border-radius:8px;font-size:16px;}
 #popup-content button{background:gold;color:#0d0d0d;padding:12px;font-weight:bold;border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.5);}
-
-/* ================= Scrollbar ================= */
 ::-webkit-scrollbar{width:12px;}
 ::-webkit-scrollbar-track{background:#0b0b0b;}
 ::-webkit-scrollbar-thumb{background:gold;border-radius:6px;}
-
-/* ================= Animasyonlu buton ve ışık ================= */
 button:active{transform:scale(0.95);box-shadow:0 0 5px rgba(255,215,0,0.8);}
 .customer-card:hover{box-shadow:0 0 12px rgba(255,215,0,0.7);}
 </style>
 </head>
 <body>
-
-<!-- ======= Giriş ======= -->
 <div id="loginScreen">
   <h1>Bakkal Veresiye Paneli</h1>
   <input type="password" id="passwordInput" placeholder="Şifre">
   <button onclick="login()">Giriş</button>
   <p id="error"></p>
 </div>
-
-<!-- ======= Ana Ekran ======= -->
 <div id="mainScreen" class="hidden">
   <header>
     <h2>Merhaba Zeynel</h2>
@@ -122,14 +69,12 @@ button:active{transform:scale(0.95);box-shadow:0 0 5px rgba(255,215,0,0.8);}
     <button onclick="showAddCustomer()">+ Yeni Müşteri</button>
     <div id="customerList" class="customer-list"></div>
   </section>
-  <section id="stats" class="hidden">
+  <section id="stats">
     <h3>İstatistikler</h3>
     <canvas id="debtChart" width="400" height="200"></canvas>
     <canvas id="paymentChart" width="400" height="200" style="margin-top:20px;"></canvas>
   </section>
 </div>
-
-<!-- ======= Detay Sayfası ======= -->
 <div id="customerDetail" class="hidden">
   <button onclick="closeDetail()" style="margin-bottom:15px;">← Geri</button>
   <h2 id="detailName"></h2>
@@ -142,46 +87,30 @@ button:active{transform:scale(0.95);box-shadow:0 0 5px rgba(255,215,0,0.8);}
     <button onclick="addPayment()">Ödendi</button>
   </div>
 </div>
-
-<!-- ======= Popup Yeni Müşteri ======= -->
 <div id="popup">
   <div id="popup-content">
     <h3>Yeni Müşteri Ekle</h3>
     <input type="text" id="newCustomerName" placeholder="Müşteri Adı">
+    <input type="number" id="newCustomerDebt" placeholder="Başlangıç Borcu">
     <button onclick="addCustomer()">Ekle</button>
     <button onclick="closePopup()" style="margin-top:10px;background:#333;color:#fff;">İptal</button>
   </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// ========== Veri ==========
 const PASSWORD="zeynelcetin934";
 let customers=[
   {name:"Ahmet",debt:300,payments:[{amount:50,date:"2025-08-10"}]},
   {name:"Ayşe",debt:150,payments:[]},
-  {name:"Mehmet",debt:500,payments:[{amount:200,date:"2025-08-05"}]},
-  {name:"Fatma",debt:700,payments:[{amount:100,date:"2025-07-20"},{amount:50,date:"2025-08-01"}]}
+  {name:"Mehmet",debt:500,payments:[{amount:200,date:"2025-08-05"}]}
 ];
 let currentCustomer=null;
-
-// ========== Giriş ve Çıkış ==========
 function login(){
   const val=document.getElementById("passwordInput").value;
-  if(val===PASSWORD){
-    document.getElementById("loginScreen").classList.add("hidden");
-    document.getElementById("mainScreen").classList.remove("hidden");
-    renderCustomers();
-    renderStats();
-  } else {document.getElementById("error").innerText="Şifre yanlış!";}
+  if(val===PASSWORD){document.getElementById("loginScreen").classList.add("hidden");document.getElementById("mainScreen").classList.remove("hidden");renderCustomers();renderStats();}
+  else{document.getElementById("error").innerText="Şifre yanlış!";}
 }
-function logout(){
-  document.getElementById("mainScreen").classList.add("hidden");
-  document.getElementById("loginScreen").classList.remove("hidden");
-  document.getElementById("passwordInput").value="";
-}
-
-// ========== Müşteri Listesi ==========
+function logout(){document.getElementById("mainScreen").classList.add("hidden");document.getElementById("loginScreen").classList.remove("hidden");document.getElementById("passwordInput").value="";}
 function renderCustomers(){
   const list=document.getElementById("customerList");
   list.innerHTML="";
@@ -189,42 +118,26 @@ function renderCustomers(){
     const card=document.createElement("div");
     card.className="customer-card";
     let statusColor="green";
-    if(c.debt>500) statusColor="red";
-    else if(c.debt>200) statusColor="orange";
+    if(c.debt>500) statusColor="red"; else if(c.debt>200) statusColor="orange";
     card.innerHTML=`<span>${c.name}</span><span class="debt">${c.debt} TL</span>
-                    <span class="status" style="background:${statusColor}">${c.debt>0?'Borç Var':'Ödendi'}</span>`;
+                    <span class="status" style="background:${statusColor}">${c.debt>0?'Borç Var':'Ödendi'}</span>
+                    <span class="delete-btn" onclick="deleteCustomer(event,${i})">Sil</span>`;
     card.onclick=()=>showDetail(i);
     list.appendChild(card);
   });
 }
-
-// ========== Detay ==========
 function showDetail(index){
   currentCustomer=customers[index];
   document.getElementById("mainScreen").classList.add("hidden");
-  const detail=document.getElementById("customerDetail");
-  detail.classList.remove("hidden");
+  document.getElementById("customerDetail").classList.remove("hidden");
   document.getElementById("detailName").innerText=currentCustomer.name;
   document.getElementById("detailTotal").innerText=currentCustomer.debt;
-  renderPayments();
-  updateDetailStatus();
+  renderPayments();updateDetailStatus();
 }
-function closeDetail(){
-  currentCustomer=null;
-  document.getElementById("customerDetail").classList.add("hidden");
-  document.getElementById("mainScreen").classList.remove("hidden");
-  renderCustomers();
-}
-
-// ========== Ödeme ==========
+function closeDetail(){currentCustomer=null;document.getElementById("customerDetail").classList.add("hidden");document.getElementById("mainScreen").classList.remove("hidden");renderCustomers();}
 function renderPayments(){
-  const ul=document.getElementById("paymentHistory");
-  ul.innerHTML="";
-  currentCustomer.payments.forEach(p=>{
-    const li=document.createElement("li");
-    li.innerHTML=`<span>${p.date}</span><span>${p.amount} TL</span>`;
-    ul.appendChild(li);
-  });
+  const ul=document.getElementById("paymentHistory");ul.innerHTML="";
+  currentCustomer.payments.forEach(p=>{const li=document.createElement("li");li.innerHTML=`<span>${p.date}</span><span>${p.amount} TL</span>`;ul.appendChild(li);});
 }
 function addPayment(){
   const val=parseFloat(document.getElementById("paymentAmount").value);
@@ -234,49 +147,35 @@ function addPayment(){
     currentCustomer.debt-=val;
     document.getElementById("paymentAmount").value="";
     document.getElementById("detailTotal").innerText=currentCustomer.debt;
-    renderPayments();
-    updateDetailStatus();
-    renderStats();
-    alert("Ödeme kaydedildi ✅");
-  } else alert("Geçersiz tutar!");
+    renderPayments();updateDetailStatus();renderStats();alert("Ödeme kaydedildi ✅");
+  }else alert("Geçersiz tutar!");
 }
 function updateDetailStatus(){
   const statusEl=document.getElementById("detailStatus");
-  if(currentCustomer.debt===0) {statusEl.innerText="Borç Yok";statusEl.style.color="green";}
+  if(currentCustomer.debt===0){statusEl.innerText="Borç Yok";statusEl.style.color="green";}
   else if(currentCustomer.debt<=200){statusEl.innerText="Düşük Borç";statusEl.style.color="orange";}
-  else {statusEl.innerText="Yüksek Borç";statusEl.style.color="red";}
+  else{statusEl.innerText="Yüksek Borç";statusEl.style.color="red";}
 }
-
-// ========== Popup Yeni Müşteri ==========
-function showAddCustomer(){document.getElementById("popup").classList.add("show");document.getElementById("newCustomerName").value="";}
+function showAddCustomer(){document.getElementById("popup").classList.add("show");document.getElementById("newCustomerName").value="";document.getElementById("newCustomerDebt").value="";}
 function closePopup(){document.getElementById("popup").classList.remove("show");}
 function addCustomer(){
   const name=document.getElementById("newCustomerName").value.trim();
+  const debt=parseFloat(document.getElementById("newCustomerDebt").value);
   if(name!==""){
-    customers.push({name,debt:0,payments:[]});
-    renderCustomers();
-    closePopup();
-    renderStats();
+    customers.push({name,debt:!isNaN(debt)?debt:0,payments:[]});
+    renderCustomers();closePopup();renderStats();
   }
 }
-
-// ========== İstatistik ==========
+function deleteCustomer(e,index){e.stopPropagation();if(confirm("Müşteriyi silmek istediğine emin misin?")){customers.splice(index,1);renderCustomers();renderStats();}}
+let debtChart,payChart;
 function renderStats(){
   document.getElementById("stats").classList.remove("hidden");
   const ctxDebt=document.getElementById("debtChart").getContext('2d');
   const ctxPay=document.getElementById("paymentChart").getContext('2d');
-  if(window.debtChart) window.debtChart.destroy();
-  if(window.payChart) window.payChart.destroy();
-  window.debtChart=new Chart(ctxDebt,{
-    type:'bar',
-    data:{labels:customers.map(c=>c.name),datasets:[{label:'Toplam Borç',data:customers.map(c=>c.debt),backgroundColor:'gold'}]},
-    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
-  });
-  window.payChart=new Chart(ctxPay,{
-    type:'line',
-    data:{labels:customers.map(c=>c.name),datasets:[{label:'Ödenen Tutar',data:customers.map(c=>c.payments.reduce((a,b)=>a+b.amount,0)),borderColor:'gold',backgroundColor:'rgba(255,215,0,0.3)',fill:true,tension:0.4}]},
-    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
-  });
+  if(debtChart) debtChart.destroy();
+  if(payChart) payChart.destroy();
+  debtChart=new Chart(ctxDebt,{type:'bar',data:{labels:customers.map(c=>c.name),datasets:[{label:'Toplam Borç',data:customers.map(c=>c.debt),backgroundColor:'gold'}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  payChart=new Chart(ctxPay,{type:'line',data:{labels:customers.map(c=>c.name),datasets:[{label:'Ödenen Tutar',data:customers.map(c=>c.payments.reduce((a,b)=>a+b.amount,0)),borderColor:'gold',backgroundColor:'rgba(255,215,0,0.3)',fill:true,tension:0.4}]} ,options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
 }
 </script>
 </body>
