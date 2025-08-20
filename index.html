@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bakkal Veresiye Paneli</title>
+<title>Bakkal Veresiye Paneli - Ultimate</title>
 <style>
 /* ================= Temel Stil ================= */
 body{
   margin:0;
   font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color:#0d0d0d;
+  background-color:#0b0b0b;
   color:#f5f5f5;
   overflow-x:hidden;
 }
@@ -22,12 +22,17 @@ a{text-decoration:none;color:inherit;}
 /* ================= Giriş Ekranı ================= */
 #loginScreen{
   display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;
-  background:linear-gradient(135deg,#1a1a1a,#000);
+  background:linear-gradient(135deg,#111,#000);
 }
-#loginScreen h1{font-size:48px;margin-bottom:20px;color:gold;text-shadow:0 0 12px #FFD700;}
+#loginScreen h1{
+  font-size:48px;margin-bottom:20px;color:gold;text-shadow:0 0 12px #FFD700,0 0 20px #fff;
+}
 #loginScreen input{padding:15px;width:280px;margin-bottom:20px;background:#222;color:#fff;}
-#loginScreen button{background:gold;color:#0d0d0d;padding:15px 25px;font-weight:bold;font-size:18px;border-radius:8px;}
-#error{color:red;margin-top:10px;font-weight:bold;}
+#loginScreen button{
+  background:gold;color:#0d0d0d;padding:15px 25px;font-weight:bold;font-size:18px;
+  border-radius:10px;box-shadow:0 0 12px rgba(255,215,0,0.6);
+}
+#error{color:red;margin-top:10px;font-weight:bold;text-shadow:0 0 5px red;}
 
 /* ================= Ana Ekran ================= */
 #mainScreen{padding:20px;animation:fadeIn 0.5s;}
@@ -36,57 +41,64 @@ a{text-decoration:none;color:inherit;}
 header{
   display:flex;justify-content:space-between;align-items:center;
   background-color:#1a1a1a;padding:20px;border-radius:12px;margin-bottom:20px;
-  box-shadow:0 0 15px rgba(255,215,0,0.3);
+  box-shadow:0 0 15px rgba(255,215,0,0.4);
 }
-header h2{color:gold;text-shadow:0 0 8px #FFD700;font-size:28px;}
-header button{background:#ffcc00;color:#0d0d0d;padding:10px 18px;font-weight:bold;border-radius:8px;box-shadow:0 0 8px rgba(255,215,0,0.5);}
+header h2{color:gold;text-shadow:0 0 12px #FFD700;font-size:28px;}
+header button{
+  background:#ffcc00;color:#0d0d0d;padding:10px 18px;font-weight:bold;
+  border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.5);
+}
 section{margin-bottom:30px;}
 .customer-list{display:flex;flex-direction:column;gap:12px;}
 .customer-card{
-  background:#222;
-  padding:15px 20px;
-  border-radius:10px;
+  background:#222;padding:15px 20px;border-radius:10px;
   display:flex;justify-content:space-between;align-items:center;
-  transition:all 0.2s;
+  transition:all 0.3s;
   box-shadow:0 0 8px rgba(0,0,0,0.5);
+  position:relative;
 }
 .customer-card:hover{background:#333;transform:scale(1.02);}
 .customer-card .debt{font-weight:bold;color:gold;}
+.customer-card .status{position:absolute;top:10px;right:10px;font-weight:bold;padding:2px 6px;border-radius:4px;color:#000;}
 
 /* ================= Detay Sayfası ================= */
 #customerDetail{
-  background:#1e1e1e;
-  padding:25px;
-  border-radius:14px;
-  max-width:500px;
-  margin:auto;
-  animation:fadeSlide 0.4s;
+  background:#1e1e1e;padding:25px;border-radius:14px;
+  max-width:550px;margin:auto;animation:fadeSlide 0.4s;
+  box-shadow:0 0 20px rgba(255,215,0,0.5);
 }
 @keyframes fadeSlide{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
-
-/* Liste ve ödeme */
+#customerDetail h2{color:gold;margin-bottom:10px;text-shadow:0 0 8px #FFD700;}
+#customerDetail p{font-size:18px;margin-bottom:15px;}
 #customerDetail ul{list-style:none;padding-left:0;max-height:250px;overflow-y:auto;margin-top:10px;}
 #customerDetail li{padding:10px 0;border-bottom:1px solid #333;display:flex;justify-content:space-between;}
 .payment-section{display:flex;gap:12px;margin-top:15px;}
 .payment-section input{flex:1;padding:10px;border-radius:8px;background:#333;color:#fff;}
-.payment-section button{background:gold;color:#0d0d0d;font-weight:bold;box-shadow:0 0 8px rgba(255,215,0,0.5);}
+.payment-section button{
+  background:gold;color:#0d0d0d;font-weight:bold;
+  box-shadow:0 0 8px rgba(255,215,0,0.5);
+}
 
-/* Grafik alanı */
-#stats{background:#222;padding:20px;border-radius:12px;max-width:500px;margin:auto;box-shadow:0 0 12px rgba(255,215,0,0.3);}
+/* ================= Grafik ================= */
+#stats{background:#222;padding:20px;border-radius:12px;max-width:550px;margin:auto;box-shadow:0 0 12px rgba(255,215,0,0.3);margin-top:20px;}
 canvas{background:#111;border-radius:10px;padding:10px;}
 
-/* Popup yeni müşteri */
-#popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);
+/* ================= Popup yeni müşteri ================= */
+#popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);
 display:flex;justify-content:center;align-items:center;visibility:hidden;opacity:0;transition:opacity 0.3s;}
 #popup.show{visibility:visible;opacity:1;}
-#popup-content{background:#1a1a1a;padding:25px;border-radius:12px;width:300px;display:flex;flex-direction:column;}
-#popup-content input{padding:12px;margin-bottom:15px;background:#333;color:#fff;}
-#popup-content button{background:gold;color:#0d0d0d;padding:12px;font-weight:bold;}
+#popup-content{background:#1a1a1a;padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;box-shadow:0 0 20px rgba(255,215,0,0.6);}
+#popup-content input{padding:14px;margin-bottom:15px;background:#333;color:#fff;border-radius:8px;font-size:16px;}
+#popup-content button{background:gold;color:#0d0d0d;padding:12px;font-weight:bold;border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.5);}
 
-/* Scrollbar */
-::-webkit-scrollbar{width:10px;}
-::-webkit-scrollbar-track{background:#0d0d0d;}
-::-webkit-scrollbar-thumb{background:gold;border-radius:5px;}
+/* ================= Scrollbar ================= */
+::-webkit-scrollbar{width:12px;}
+::-webkit-scrollbar-track{background:#0b0b0b;}
+::-webkit-scrollbar-thumb{background:gold;border-radius:6px;}
+
+/* ================= Animasyonlu buton ve ışık ================= */
+button:active{transform:scale(0.95);box-shadow:0 0 5px rgba(255,215,0,0.8);}
+.customer-card:hover{box-shadow:0 0 12px rgba(255,215,0,0.7);}
 </style>
 </head>
 <body>
@@ -122,6 +134,7 @@ display:flex;justify-content:center;align-items:center;visibility:hidden;opacity
   <button onclick="closeDetail()" style="margin-bottom:15px;">← Geri</button>
   <h2 id="detailName"></h2>
   <p>Toplam Borç: <span id="detailTotal">0</span> TL</p>
+  <p>Ödeme Durumu: <span id="detailStatus"></span></p>
   <h3>Ödeme Geçmişi</h3>
   <ul id="paymentHistory"></ul>
   <div class="payment-section">
@@ -147,11 +160,12 @@ const PASSWORD="zeynelcetin934";
 let customers=[
   {name:"Ahmet",debt:300,payments:[{amount:50,date:"2025-08-10"}]},
   {name:"Ayşe",debt:150,payments:[]},
-  {name:"Mehmet",debt:500,payments:[{amount:200,date:"2025-08-05"}]}
+  {name:"Mehmet",debt:500,payments:[{amount:200,date:"2025-08-05"}]},
+  {name:"Fatma",debt:700,payments:[{amount:100,date:"2025-07-20"},{amount:50,date:"2025-08-01"}]}
 ];
 let currentCustomer=null;
 
-// ========== Giriş ==========
+// ========== Giriş ve Çıkış ==========
 function login(){
   const val=document.getElementById("passwordInput").value;
   if(val===PASSWORD){
@@ -174,7 +188,11 @@ function renderCustomers(){
   customers.forEach((c,i)=>{
     const card=document.createElement("div");
     card.className="customer-card";
-    card.innerHTML=`<span>${c.name}</span><span class="debt">${c.debt} TL</span>`;
+    let statusColor="green";
+    if(c.debt>500) statusColor="red";
+    else if(c.debt>200) statusColor="orange";
+    card.innerHTML=`<span>${c.name}</span><span class="debt">${c.debt} TL</span>
+                    <span class="status" style="background:${statusColor}">${c.debt>0?'Borç Var':'Ödendi'}</span>`;
     card.onclick=()=>showDetail(i);
     list.appendChild(card);
   });
@@ -189,6 +207,7 @@ function showDetail(index){
   document.getElementById("detailName").innerText=currentCustomer.name;
   document.getElementById("detailTotal").innerText=currentCustomer.debt;
   renderPayments();
+  updateDetailStatus();
 }
 function closeDetail(){
   currentCustomer=null;
@@ -216,19 +235,21 @@ function addPayment(){
     document.getElementById("paymentAmount").value="";
     document.getElementById("detailTotal").innerText=currentCustomer.debt;
     renderPayments();
+    updateDetailStatus();
     renderStats();
     alert("Ödeme kaydedildi ✅");
   } else alert("Geçersiz tutar!");
 }
+function updateDetailStatus(){
+  const statusEl=document.getElementById("detailStatus");
+  if(currentCustomer.debt===0) {statusEl.innerText="Borç Yok";statusEl.style.color="green";}
+  else if(currentCustomer.debt<=200){statusEl.innerText="Düşük Borç";statusEl.style.color="orange";}
+  else {statusEl.innerText="Yüksek Borç";statusEl.style.color="red";}
+}
 
-// ========== Yeni Müşteri Popup ==========
-function showAddCustomer(){
-  document.getElementById("popup").classList.add("show");
-  document.getElementById("newCustomerName").value="";
-}
-function closePopup(){
-  document.getElementById("popup").classList.remove("show");
-}
+// ========== Popup Yeni Müşteri ==========
+function showAddCustomer(){document.getElementById("popup").classList.add("show");document.getElementById("newCustomerName").value="";}
+function closePopup(){document.getElementById("popup").classList.remove("show");}
 function addCustomer(){
   const name=document.getElementById("newCustomerName").value.trim();
   if(name!==""){
@@ -248,19 +269,13 @@ function renderStats(){
   if(window.payChart) window.payChart.destroy();
   window.debtChart=new Chart(ctxDebt,{
     type:'bar',
-    data:{
-      labels:customers.map(c=>c.name),
-      datasets:[{label:'Toplam Borç',data:customers.map(c=>c.debt),backgroundColor:'gold'}]
-    },
-    options:{responsive:true,plugins:{legend:{display:false}}}
+    data:{labels:customers.map(c=>c.name),datasets:[{label:'Toplam Borç',data:customers.map(c=>c.debt),backgroundColor:'gold'}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
   });
   window.payChart=new Chart(ctxPay,{
     type:'line',
-    data:{
-      labels:customers.map(c=>c.name),
-      datasets:[{label:'Ödenen Tutar',data:customers.map(c=>c.payments.reduce((a,b)=>a+b.amount,0)),borderColor:'gold',backgroundColor:'rgba(255,215,0,0.3)'}]
-    },
-    options:{responsive:true,plugins:{legend:{display:false}}}
+    data:{labels:customers.map(c=>c.name),datasets:[{label:'Ödenen Tutar',data:customers.map(c=>c.payments.reduce((a,b)=>a+b.amount,0)),borderColor:'gold',backgroundColor:'rgba(255,215,0,0.3)',fill:true,tension:0.4}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
   });
 }
 </script>
