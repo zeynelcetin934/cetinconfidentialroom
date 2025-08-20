@@ -5,164 +5,271 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bakkal Veresiye Paneli - Gelişmiş</title>
 <style>
-body{margin:0;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:#0b0b0b;color:#f5f5f5;}
-.hidden{display:none;}
-button,input{border:none;border-radius:6px;outline:none;font-size:16px;}
-button{cursor:pointer;transition:all 0.2s;}
-button:hover{transform:scale(1.05);}
-a{text-decoration:none;color:inherit;}
-#loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#111,#000);}
-#loginScreen h1{font-size:48px;margin-bottom:20px;color:gold;text-shadow:0 0 12px #FFD700,0 0 20px #fff;}
-#loginScreen input{padding:15px;width:280px;margin-bottom:20px;background:#222;color:#fff;}
-#loginScreen button{background:gold;color:#0d0d0d;padding:15px 25px;font-weight:bold;font-size:18px;border-radius:10px;box-shadow:0 0 12px rgba(255,215,0,0.6);}
-#error{color:red;margin-top:10px;font-weight:bold;text-shadow:0 0 5px red;}
-#mainScreen{padding:20px;animation:fadeIn 0.5s;}
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-header{display:flex;justify-content:space-between;align-items:center;background:#1a1a1a;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 0 15px rgba(255,215,0,0.4);}
-header h2{color:gold;text-shadow:0 0 12px #FFD700;font-size:28px;}
-header button{background:#ffcc00;color:#0d0d0d;padding:10px 18px;font-weight:bold;border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.5);}
-section{margin-bottom:30px;}
-.customer-list{display:flex;flex-direction:column;gap:12px;}
-.customer-card{background:#222;padding:15px 20px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s;box-shadow:0 0 8px rgba(0,0,0,0.5);position:relative;}
-.customer-card:hover{background:#333;transform:scale(1.02);box-shadow:0 0 12px rgba(255,215,0,0.7);}
-.customer-card .debt{font-weight:bold;color:gold;}
-.customer-card .status{position:absolute;top:10px;right:60px;font-weight:bold;padding:2px 6px;border-radius:4px;color:#fff;}
-.customer-card .delete-btn{position:absolute;top:10px;right:10px;background:red;color:#fff;padding:2px 6px;font-size:12px;border-radius:4px;cursor:pointer;}
-#customerDetail{background:#1e1e1e;padding:25px;border-radius:14px;max-width:550px;margin:auto;animation:fadeSlide 0.4s;box-shadow:0 0 20px rgba(255,215,0,0.5);}
-@keyframes fadeSlide{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
-#customerDetail h2{color:gold;margin-bottom:10px;text-shadow:0 0 8px #FFD700;}
-#customerDetail p{font-size:18px;margin-bottom:15px;}
-#customerDetail ul{list-style:none;padding-left:0;max-height:250px;overflow-y:auto;margin-top:10px;}
-#customerDetail li{padding:10px 0;border-bottom:1px solid #333;display:flex;justify-content:space-between;}
-.payment-section{display:flex;gap:12px;margin-top:15px;}
-.payment-section input{flex:1;padding:10px;border-radius:8px;background:#333;color:#fff;}
-.payment-section button{background:gold;color:#0d0d0d;font-weight:bold;box-shadow:0 0 8px rgba(255,215,0,0.5);}
-#stats{background:#222;padding:20px;border-radius:12px;max-width:550px;margin:auto;box-shadow:0 0 12px rgba(255,215,0,0.3);margin-top:20px;}
-canvas{background:#111;border-radius:10px;padding:10px;}
-#popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;justify-content:center;align-items:center;visibility:hidden;opacity:0;transition:opacity 0.3s;}
-#popup.show{visibility:visible;opacity:1;}
-#popup-content{background:#1a1a1a;padding:30px;border-radius:16px;width:320px;display:flex;flex-direction:column;box-shadow:0 0 20px rgba(255,215,0,0.6);}
-#popup-content input{padding:14px;margin-bottom:10px;background:#333;color:#fff;border-radius:8px;font-size:16px;}
-#popup-content button{background:gold;color:#0d0d0d;padding:12px;font-weight:bold;border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.5);}
-::-webkit-scrollbar{width:12px;}
-::-webkit-scrollbar-track{background:#0b0b0b;}
-::-webkit-scrollbar-thumb{background:gold;border-radius:6px;}
-button:active{transform:scale(0.95);box-shadow:0 0 5px rgba(255,215,0,0.8);}
-.back-btn{margin-bottom:15px;padding:8px 14px;background:#333;color:#fff;border-radius:6px;}
+  :root{
+    --gold:#FFD700;
+    --bg:#0b0b0b;
+    --card:#1e1e1e;
+    --panel:#1a1a1a;
+  }
+  body{margin:0;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:var(--bg);color:#f5f5f5;}
+  .hidden{display:none;}
+  button,input{border:none;border-radius:6px;outline:none;font-size:16px;}
+  button{cursor:pointer;transition:all 0.2s;}
+  button:hover{transform:scale(1.05);}
+  a{text-decoration:none;color:inherit;}
+  /* Login */
+  #loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#111,#000);padding:20px;gap:10px;}
+  #loginScreen h1{font-size:42px;margin-bottom:10px;color:gold;text-shadow:0 0 12px var(--gold),0 0 20px #fff;text-align:center;}
+  .login-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  #loginScreen input{padding:14px;width:280px;background:#222;color:#fff;}
+  #loginScreen button{background:gold;color:#0d0d0d;padding:12px 18px;font-weight:bold;font-size:16px;border-radius:10px;box-shadow:0 0 12px rgba(255,215,0,0.6);}
+  #error{color:#ff5e5e;margin-top:10px;font-weight:bold;text-shadow:0 0 5px #ff5e5e;min-height:22px}
+  /* Main */
+  #mainScreen{padding:20px;animation:fadeIn 0.5s;}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  header{display:flex;justify-content:space-between;align-items:center;background:#1a1a1a;padding:16px;border-radius:12px;margin-bottom:20px;box-shadow:0 0 15px rgba(255,215,0,0.25);gap:10px;flex-wrap:wrap}
+  header h2{color:gold;text-shadow:0 0 12px var(--gold);font-size:24px;margin:0}
+  .header-actions{display:flex;gap:8px;flex-wrap:wrap}
+  header button{background:#ffcc00;color:#0d0d0d;padding:10px 14px;font-weight:bold;border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.4);}
+  section{margin-bottom:30px;}
+  /* Customer list */
+  .customer-list{display:flex;flex-direction:column;gap:12px;}
+  .customer-card{background:#222;padding:14px 16px;border-radius:12px;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:6px 10px;align-items:center;transition:all 0.2s;box-shadow:0 0 8px rgba(0,0,0,0.5);position:relative;}
+  .customer-card:hover{background:#2b2b2b;transform:translateY(-1px);box-shadow:0 0 12px rgba(255,215,0,0.35);}
+  .c-name{font-weight:600;font-size:18px;}
+  .c-debt{justify-self:end;font-weight:800;font-size:18px;color:gold;}
+  .c-status{grid-column:1/2;grid-row:2/3;display:inline-flex;align-items:center;gap:6px;font-weight:600;padding:2px 8px;border-radius:999px;color:#fff;width:max-content}
+  .c-actions{grid-column:2/3;grid-row:2/3;justify-self:end;display:flex;gap:6px}
+  .btn-mini{padding:6px 10px;border-radius:8px;font-size:13px}
+  .btn-delete{background:#e74c3c;color:#fff}
+  .btn-open{background:#444;color:#fff}
+  /* Detail */
+  #customerDetail{background:#1e1e1e;padding:20px;border-radius:14px;max-width:620px;margin:14px auto;animation:fadeSlide 0.3s;box-shadow:0 0 20px rgba(255,215,0,0.35);}
+  @keyframes fadeSlide{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  #customerDetail h2{color:gold;margin-bottom:6px;text-shadow:0 0 8px var(--gold);}
+  #customerDetail p{font-size:17px;margin:6px 0;}
+  #customerDetail ul{list-style:none;padding-left:0;max-height:250px;overflow-y:auto;margin-top:10px;border-top:1px solid #333;}
+  #customerDetail li{padding:10px 0;border-bottom:1px solid #333;display:flex;justify-content:space-between;}
+  .payment-section{display:flex;gap:10px;margin-top:12px;}
+  .payment-section input{flex:1;padding:10px;border-radius:8px;background:#333;color:#fff;}
+  .payment-section button{background:gold;color:#0d0d0d;font-weight:bold;box-shadow:0 0 8px rgba(255,215,0,0.4);}
+  /* Stats */
+  #stats{background:#222;padding:16px;border-radius:12px;max-width:900px;margin:auto;box-shadow:0 0 12px rgba(255,215,0,0.25);margin-top:20px;}
+  canvas{background:#111;border-radius:10px;padding:10px;width:100%;height:auto;max-height:280px;}
+  /* Popup */
+  #popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;justify-content:center;align-items:center;visibility:hidden;opacity:0;transition:opacity 0.25s;}
+  #popup.show{visibility:visible;opacity:1;}
+  #popup-content{background:#1a1a1a;padding:20px;border-radius:16px;width:320px;display:flex;flex-direction:column;box-shadow:0 0 20px rgba(255,215,0,0.45);}
+  #popup-content input{padding:12px;margin-bottom:10px;background:#333;color:#fff;border-radius:8px;font-size:16px;}
+  #popup-content button{background:gold;color:#0d0d0d;padding:10px;font-weight:bold;border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.45);}
+  /* camera modal */
+  #cameraModal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:.25s}
+  #cameraModal.show{visibility:visible;opacity:1;}
+  .cam-box{background:#111;border:1px solid #333;border-radius:14px;padding:16px;max-width:480px;width:90%;display:flex;flex-direction:column;gap:10px;align-items:center}
+  video,canvas#overlay{width:100%;border-radius:10px;background:#000}
+  .back-btn{margin-bottom:12px;padding:8px 14px;background:#333;color:#fff;border-radius:6px;}
+  /* scrollbars */
+  ::-webkit-scrollbar{width:12px;}
+  ::-webkit-scrollbar-track{background:#0b0b0b;}
+  ::-webkit-scrollbar-thumb{background:gold;border-radius:6px;}
+  button:active{transform:scale(0.97);}
 </style>
 </head>
 <body>
-<div id="loginScreen">
-  <h1>Bakkal Veresiye Paneli</h1>
-  <input type="password" id="passwordInput" placeholder="Şifre">
-  <button onclick="login()">Giriş</button>
-  <p id="error"></p>
-</div>
-<div id="mainScreen" class="hidden">
-  <header>
-    <h2 id="welcomeMsg">Merhaba</h2>
-    <button onclick="logout()">Çıkış</button>
-  </header>
-  <section>
-    <h3>Müşteriler</h3>
-    <button onclick="showAddCustomer()">+ Yeni Müşteri</button>
-    <div id="customerList" class="customer-list"></div>
-  </section>
-  <section id="stats">
-    <h3>İstatistikler</h3>
-    <canvas id="debtChart" width="400" height="200"></canvas>
-    <canvas id="paymentChart" width="400" height="200" style="margin-top:20px;"></canvas>
-  </section>
-</div>
-<div id="customerDetail" class="hidden">
-  <button class="back-btn" onclick="closeDetail()">← Geri</button>
-  <h2 id="detailName"></h2>
-  <p>Toplam Borç: <span id="detailTotal">0</span> TL</p>
-  <p>Ödeme Durumu: <span id="detailStatus"></span></p>
-  <h3>Ödeme Geçmişi</h3>
-  <ul id="paymentHistory"></ul>
-  <div class="payment-section">
-    <input type="number" id="paymentAmount" placeholder="Ödenen Tutar">
-    <button onclick="addPayment()">Ödendi</button>
+  <!-- LOGIN -->
+  <div id="loginScreen">
+    <h1>Bakkal Veresiye Paneli</h1>
+    <div class="login-row">
+      <input type="password" id="passwordInput" placeholder="Şifre">
+      <button id="btnPwdLogin">Giriş</button>
+    </div>
+    <div class="login-row">
+      <button id="btnFaceLogin">Yüzle Giriş</button>
+      <button id="btnEnroll" title="En fazla 2 kişi">Yüz Kaydet (maks. 2)</button>
+    </div>
+    <p id="error"></p>
   </div>
-</div>
-<div id="popup">
-  <div id="popup-content">
-    <h3>Yeni Müşteri Ekle</h3>
-    <input type="text" id="newCustomerName" placeholder="Müşteri Adı">
-    <input type="number" id="newCustomerDebt" placeholder="Başlangıç Borcu">
-    <button onclick="addCustomer()">Ekle</button>
-    <button onclick="closePopup()" style="margin-top:10px;background:#333;color:#fff;">İptal</button>
-  </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const PASSWORD="zeynelcetin934";
 
+  <!-- MAIN -->
+  <div id="mainScreen" class="hidden">
+    <header>
+      <h2 id="welcomeMsg">Merhaba</h2>
+      <div class="header-actions">
+        <button onclick="showAddCustomer()">+ Yeni Müşteri</button>
+        <button onclick="downloadBackup()">Yedek İndir</button>
+        <button onclick="uploadBackup()">Yedekten Yükle</button>
+        <button onclick="logout()">Çıkış</button>
+      </div>
+    </header>
+
+    <section>
+      <h3>Müşteriler</h3>
+      <div id="customerList" class="customer-list"></div>
+    </section>
+
+    <section id="stats">
+      <h3>İstatistikler</h3>
+      <canvas id="debtChart" width="400" height="200"></canvas>
+      <canvas id="paymentChart" width="400" height="200" style="margin-top:20px;"></canvas>
+    </section>
+  </div>
+
+  <!-- DETAIL -->
+  <div id="customerDetail" class="hidden">
+    <button class="back-btn" onclick="closeDetail()">← Geri</button>
+    <h2 id="detailName"></h2>
+    <p>Toplam Borç: <span id="detailTotal">0</span> TL</p>
+    <p>Ödeme Durumu: <span id="detailStatus"></span></p>
+    <h3>Ödeme Geçmişi</h3>
+    <ul id="paymentHistory"></ul>
+    <div class="payment-section">
+      <input type="number" id="paymentAmount" placeholder="Ödenen Tutar">
+      <button onclick="addPayment()">Ödendi</button>
+    </div>
+  </div>
+
+  <!-- ADD CUSTOMER POPUP -->
+  <div id="popup">
+    <div id="popup-content">
+      <h3>Yeni Müşteri Ekle</h3>
+      <input type="text" id="newCustomerName" placeholder="Müşteri Adı">
+      <input type="number" id="newCustomerDebt" placeholder="Başlangıç Borcu">
+      <button onclick="addCustomer()">Ekle</button>
+      <button onclick="closePopup()" style="margin-top:10px;background:#333;color:#fff;">İptal</button>
+    </div>
+  </div>
+
+  <!-- CAMERA MODAL (enroll / login) -->
+  <div id="cameraModal">
+    <div class="cam-box">
+      <h3 id="camTitle">Kamera</h3>
+      <video id="video" autoplay muted playsinline></video>
+      <canvas id="overlay"></canvas>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <button id="btnCapture" class="btn-mini">Yüzü Tara / Kaydet</button>
+        <button id="btnCloseCam" class="btn-mini" style="background:#444;color:#fff">Kapat</button>
+      </div>
+      <p id="camInfo" style="font-size:14px;opacity:.9;margin:0"></p>
+    </div>
+  </div>
+
+  <!-- LIBS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2"></script>
+
+<script>
+/* =================== AYARLAR =================== */
+const PASSWORD = "zeynelcetin934";
+const MODEL_URL = "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights";
+const FACE_LIMIT = 2;
+const FACE_THRESHOLD = 0.55; // daha sıkı eşik
+
+/* =================== VERİLER =================== */
 // localStorage'dan yükle
 let customers = JSON.parse(localStorage.getItem("customers")) || [
   {name:"Ahmet",debt:300,payments:[{amount:50,date:"2025-08-10"}]},
   {name:"Ayşe",debt:150,payments:[]},
   {name:"Mehmet",debt:500,payments:[{amount:200,date:"2025-08-05"}]}
 ];
+// kayıtlı yüzler: [{label:"Zeynel", descriptors:[Float32Array[], ...]}]
+let faceProfiles = JSON.parse(localStorage.getItem("faceProfiles")||"[]");
+let currentCustomer = null;
+let debtChart, payChart;
 
-let currentCustomer=null;
-
-// Verileri kaydet
+/* =================== YARDIMCILAR =================== */
 function saveData(){
-  localStorage.setItem("customers",JSON.stringify(customers));
+  localStorage.setItem("customers", JSON.stringify(customers));
 }
-
-function login(){
-  const val=document.getElementById("passwordInput").value;
-  if(val===PASSWORD){
-    document.getElementById("loginScreen").classList.add("hidden");
-    document.getElementById("mainScreen").classList.remove("hidden");
-    document.getElementById("welcomeMsg").innerText="Merhaba Kullanıcı";
-    renderCustomers();renderStats();
+function saveFaces(){
+  localStorage.setItem("faceProfiles", JSON.stringify(faceProfiles));
+  updateEnrollButton();
+}
+function updateEnrollButton(){
+  const btnEnroll = document.getElementById("btnEnroll");
+  if(faceProfiles.length >= FACE_LIMIT){
+    btnEnroll.classList.add("hidden");
   } else {
-    document.getElementById("error").innerText="Şifre yanlış!";
+    btnEnroll.classList.remove("hidden");
   }
 }
-function logout(){
-  document.getElementById("mainScreen").classList.add("hidden");
-  document.getElementById("loginScreen").classList.remove("hidden");
-  document.getElementById("passwordInput").value="";
+function money(n){ return (Math.round((n + Number.EPSILON)*100)/100).toString().replace(".",","); }
+
+/* =================== GİRİŞ İŞLEMLERİ =================== */
+document.getElementById("btnPwdLogin").onclick = () => {
+  const val = document.getElementById("passwordInput").value;
+  if(val===PASSWORD){ enterApp("Şifre"); } else { showErr("Şifre yanlış!"); }
+};
+document.getElementById("btnFaceLogin").onclick = () => openCamera("login");
+document.getElementById("btnEnroll").onclick = () => {
+  if(faceProfiles.length >= FACE_LIMIT){ showErr("En fazla 2 kişi kaydedilebilir."); return; }
+  openCamera("enroll");
+};
+function showErr(msg){ document.getElementById("error").innerText = msg; setTimeout(()=>{document.getElementById("error").innerText="";}, 3000); }
+
+function enterApp(method){
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("mainScreen").classList.remove("hidden");
+  document.getElementById("welcomeMsg").innerText = `Merhaba ${method==="Şifre"?"Kullanıcı":"👋"}`;
+  renderCustomers(); renderStats();
 }
+
+/* =================== MÜŞTERİ LİSTESİ =================== */
 function renderCustomers(){
-  const list=document.getElementById("customerList");
-  list.innerHTML="";
+  const list = document.getElementById("customerList");
+  list.innerHTML = "";
   customers.forEach((c,i)=>{
     const card=document.createElement("div");
     card.className="customer-card";
-    let statusColor="green";
-    if(c.debt>500) statusColor="red"; else if(c.debt>200) statusColor="orange";
-    card.innerHTML=`<span>${c.name}</span><span class="debt">${c.debt} TL</span>
-                    <span class="status" style="background:${statusColor}">${c.debt>0?'Borç Var':'Ödendi'}</span>
-                    <span class="delete-btn" onclick="deleteCustomer(event,${i})">Sil</span>`;
+
+    let statusColor="#2ecc71", statusText="Ödendi";
+    if(c.debt>500){ statusColor="#e74c3c"; statusText="Yüksek Borç"; }
+    else if(c.debt>0){ statusColor="#f39c12"; statusText="Borç Var"; }
+
+    const nameEl = document.createElement("div"); nameEl.className="c-name"; nameEl.textContent = c.name;
+    const debtEl = document.createElement("div"); debtEl.className="c-debt"; debtEl.textContent = `${c.debt} TL`;
+
+    const statusEl = document.createElement("div"); statusEl.className="c-status";
+    statusEl.style.background = statusColor; statusEl.textContent = statusText;
+
+    const actions = document.createElement("div"); actions.className="c-actions";
+    const btnOpen = document.createElement("button"); btnOpen.className="btn-mini btn-open"; btnOpen.textContent="Aç";
+    const btnDel = document.createElement("button"); btnDel.className="btn-mini btn-delete"; btnDel.textContent="Sil";
+
+    btnOpen.onclick = (e)=>{ e.stopPropagation(); showDetail(i); };
+    btnDel.onclick = (e)=>{ e.stopPropagation(); deleteCustomer(i); };
+
+    actions.appendChild(btnOpen);
+    actions.appendChild(btnDel);
+
+    card.appendChild(nameEl);
+    card.appendChild(debtEl);
+    card.appendChild(statusEl);
+    card.appendChild(actions);
+
     card.onclick=()=>showDetail(i);
     list.appendChild(card);
   });
 }
+
 function showDetail(index){
-  currentCustomer=customers[index];
+  currentCustomer = customers[index];
   document.getElementById("mainScreen").classList.add("hidden");
   document.getElementById("customerDetail").classList.remove("hidden");
-  document.getElementById("detailName").innerText=currentCustomer.name;
-  document.getElementById("detailTotal").innerText=currentCustomer.debt;
-  renderPayments();updateDetailStatus();
+  document.getElementById("detailName").innerText = currentCustomer.name;
+  document.getElementById("detailTotal").innerText = currentCustomer.debt;
+  renderPayments(); updateDetailStatus();
 }
 function closeDetail(){
-  currentCustomer=null;
+  currentCustomer = null;
   document.getElementById("customerDetail").classList.add("hidden");
   document.getElementById("mainScreen").classList.remove("hidden");
-  renderCustomers();renderStats();
+  renderCustomers(); renderStats();
 }
 function renderPayments(){
-  const ul=document.getElementById("paymentHistory");ul.innerHTML="";
+  const ul = document.getElementById("paymentHistory"); ul.innerHTML="";
   currentCustomer.payments.forEach(p=>{
     const li=document.createElement("li");
-    li.innerHTML=`<span>${p.date}</span><span>${p.amount} TL</span>`;
+    li.innerHTML = `<span>${p.date}</span><span>${p.amount} TL</span>`;
     ul.appendChild(li);
   });
 }
@@ -171,53 +278,190 @@ function addPayment(){
   if(!isNaN(val)&&val>0&&val<=currentCustomer.debt){
     const today=new Date().toISOString().split('T')[0];
     currentCustomer.payments.push({amount:val,date:today});
-    currentCustomer.debt-=val;
+    currentCustomer.debt = Math.max(0, +(currentCustomer.debt - val).toFixed(2));
     saveData();
     document.getElementById("paymentAmount").value="";
     document.getElementById("detailTotal").innerText=currentCustomer.debt;
-    renderPayments();updateDetailStatus();renderCustomers();renderStats();
+    renderPayments(); updateDetailStatus(); renderCustomers(); renderStats();
     alert("Ödeme kaydedildi ✅");
-  }else alert("Geçersiz tutar!");
+  } else alert("Geçersiz tutar!");
 }
 function updateDetailStatus(){
   const statusEl=document.getElementById("detailStatus");
-  if(currentCustomer.debt===0){statusEl.innerText="Borç Yok";statusEl.style.color="green";}
-  else if(currentCustomer.debt<=200){statusEl.innerText="Düşük Borç";statusEl.style.color="orange";}
-  else{statusEl.innerText="Yüksek Borç";statusEl.style.color="red";}
+  if(currentCustomer.debt===0){statusEl.innerText="Borç Yok";statusEl.style.color="#2ecc71";}
+  else if(currentCustomer.debt<=200){statusEl.innerText="Düşük Borç";statusEl.style.color="#f39c12";}
+  else{statusEl.innerText="Yüksek Borç";statusEl.style.color="#e74c3c";}
 }
 function showAddCustomer(){
   document.getElementById("popup").classList.add("show");
   document.getElementById("newCustomerName").value="";
   document.getElementById("newCustomerDebt").value="";
 }
-function closePopup(){document.getElementById("popup").classList.remove("show");}
+function closePopup(){ document.getElementById("popup").classList.remove("show"); }
 function addCustomer(){
   const name=document.getElementById("newCustomerName").value.trim();
   const debt=parseFloat(document.getElementById("newCustomerDebt").value);
   if(name===""){alert("Müşteri adı boş olamaz!");return;}
   if(customers.some(c=>c.name.toLowerCase()===name.toLowerCase())){alert("Bu müşteri zaten var!");return;}
   if(!isNaN(debt)&&debt<0){alert("Borç negatif olamaz!");return;}
-  customers.push({name,debt:!isNaN(debt)?debt:0,payments:[]});
-  saveData();renderCustomers();closePopup();renderStats();
+  customers.push({name,debt:!isNaN(debt)?+debt:0,payments:[]});
+  saveData(); renderCustomers(); closePopup(); renderStats();
 }
-function deleteCustomer(e,index){
-  e.stopPropagation();
+function deleteCustomer(index){
   if(confirm("Müşteriyi silmek istediğine emin misin?")){
     customers.splice(index,1);
-    saveData();renderCustomers();renderStats();
+    saveData(); renderCustomers(); renderStats();
   }
 }
-let debtChart,payChart;
+
+/* =================== İSTATİSTİK =================== */
 function renderStats(){
-  document.getElementById("stats").classList.remove("hidden");
   const ctxDebt=document.getElementById("debtChart").getContext('2d');
   const ctxPay=document.getElementById("paymentChart").getContext('2d');
   if(debtChart) debtChart.destroy();
   if(payChart) payChart.destroy();
-  if(customers.length===0)return;
-  debtChart=new Chart(ctxDebt,{type:'bar',data:{labels:customers.map(c=>c.name),datasets:[{label:'Toplam Borç',data:customers.map(c=>c.debt),backgroundColor:'gold'}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
-  payChart=new Chart(ctxPay,{type:'line',data:{labels:customers.map(c=>c.name),datasets:[{label:'Ödenen Tutar',data:customers.map(c=>c.payments.reduce((a,b)=>a+b.amount,0)),borderColor:'gold',backgroundColor:'rgba(255,215,0,0.3)',fill:true,tension:0.4}]} ,options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  if(customers.length===0) return;
+  debtChart=new Chart(ctxDebt,{
+    type:'bar',
+    data:{labels:customers.map(c=>c.name),datasets:[{label:'Toplam Borç',data:customers.map(c=>c.debt),backgroundColor:'gold'}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+  });
+  payChart=new Chart(ctxPay,{
+    type:'line',
+    data:{labels:customers.map(c=>c.name),datasets:[{label:'Ödenen Tutar',data:customers.map(c=>c.payments.reduce((a,b)=>a+b.amount,0)),borderColor:'gold',backgroundColor:'rgba(255,215,0,0.3)',fill:true,tension:0.4}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+  });
 }
+
+/* =================== YEDEKLEME =================== */
+function downloadBackup(){
+  const data = { customers, faceProfiles };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "bakkal_backup.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+function uploadBackup(){
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = "application/json";
+  inp.onchange = (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const json = JSON.parse(reader.result);
+        if(json.customers){ customers = json.customers; saveData(); }
+        if(json.faceProfiles){ faceProfiles = json.faceProfiles; saveFaces(); }
+        renderCustomers(); renderStats();
+        alert("Yedek geri yüklendi ✅");
+      }catch(err){ alert("Dosya hatalı."); }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+/* =================== YÜZ TANIMA =================== */
+let stream=null, mode="login";
+const cameraModal = document.getElementById("cameraModal");
+const video = document.getElementById("video");
+const overlay = document.getElementById("overlay");
+const ctx = overlay.getContext("2d");
+document.getElementById("btnCloseCam").onclick = closeCamera;
+document.getElementById("btnCapture").onclick = onCapture;
+
+async function ensureModels(){
+  await Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+  ]);
+}
+async function openCamera(m){
+  mode = m; updateEnrollButton();
+  document.getElementById("camTitle").innerText = mode==="enroll" ? "Yüz Kaydet (maks. 2)" : "Yüzle Giriş";
+  document.getElementById("camInfo").innerText = mode==="enroll" ? "Kameraya bak, yeterince net olunca 'Yüzü Tara / Kaydet'." : "Kameraya bak ve 'Yüzü Tara / Kaydet' butonuna bas.";
+  cameraModal.classList.add("show");
+  await ensureModels();
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+    video.srcObject = stream;
+    await new Promise(res=> video.onloadedmetadata = res);
+    overlay.width = video.videoWidth; overlay.height = video.videoHeight;
+  }catch(e){
+    alert("Kameraya erişilemedi.");
+    closeCamera();
+  }
+}
+function closeCamera(){
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  cameraModal.classList.remove("show");
+  ctx.clearRect(0,0,overlay.width,overlay.height);
+}
+
+async function onCapture(){
+  if(!video.videoWidth){ return; }
+  const det = await faceapi
+    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+
+  ctx.clearRect(0,0,overlay.width,overlay.height);
+  if(det){
+    faceapi.draw.drawDetections(overlay, [det.detection]);
+    faceapi.draw.drawFaceLandmarks(overlay, [det]);
+  }
+
+  if(!det){ document.getElementById("camInfo").innerText = "Yüz algılanamadı, biraz daha ışığa dön."; return; }
+
+  if(mode==="enroll"){
+    if(faceProfiles.length >= FACE_LIMIT){ alert("Limit dolu (2)."); return; }
+    const label = prompt("İsim gir (örn. Zeynel):") || `Kullanıcı${faceProfiles.length+1}`;
+    const desc = Array.from(det.descriptor); // Float32Array -> Array
+    faceProfiles.push({ label, descriptors:[desc] });
+    saveFaces();
+    alert(`Yüz kaydedildi: ${label} ✅`);
+    if(faceProfiles.length >= FACE_LIMIT){
+      alert("2 kişi tamamlandı. Artık sadece 'Yüzle Giriş' kullanılır.");
+    }
+    closeCamera();
+  } else {
+    // login
+    if(faceProfiles.length===0){ alert("Kayıtlı yüz yok."); return; }
+    const best = findBestMatch(det.descriptor);
+    if(best && best.distance < FACE_THRESHOLD){
+      closeCamera();
+      enterApp("Face");
+    } else {
+      alert("Tanıma başarısız. Tekrar dene.");
+    }
+  }
+}
+function euclidean(a,b){
+  let s=0; for(let i=0;i<a.length;i++){ const d=a[i]-b[i]; s+=d*d; } return Math.sqrt(s);
+}
+function findBestMatch(queryDescriptor){
+  let best = null;
+  faceProfiles.forEach(p=>{
+    p.descriptors.forEach(d=>{
+      const dist = euclidean(queryDescriptor, Float32Array.from(d));
+      if(!best || dist < best.distance){ best = { label:p.label, distance:dist }; }
+    });
+  });
+  return best;
+}
+
+/* =================== ÇIKIŞ =================== */
+function logout(){
+  document.getElementById("mainScreen").classList.add("hidden");
+  document.getElementById("loginScreen").classList.remove("hidden");
+  document.getElementById("passwordInput").value="";
+}
+
+/* =================== BAŞLANGIÇ =================== */
+updateEnrollButton();
 </script>
 </body>
 </html>
