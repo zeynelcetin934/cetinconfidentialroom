@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bakkal Veresiye Paneli - Gelişmiş</title>
 <style>
-/* Temel stil */
 body{margin:0;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:#0b0b0b;color:#f5f5f5;}
 .hidden{display:none;}
 button,input{border:none;border-radius:6px;outline:none;font-size:16px;}
@@ -25,9 +24,9 @@ header button{background:#ffcc00;color:#0d0d0d;padding:10px 18px;font-weight:bol
 section{margin-bottom:30px;}
 .customer-list{display:flex;flex-direction:column;gap:12px;}
 .customer-card{background:#222;padding:15px 20px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s;box-shadow:0 0 8px rgba(0,0,0,0.5);position:relative;}
-.customer-card:hover{background:#333;transform:scale(1.02);}
+.customer-card:hover{background:#333;transform:scale(1.02);box-shadow:0 0 12px rgba(255,215,0,0.7);}
 .customer-card .debt{font-weight:bold;color:gold;}
-.customer-card .status{position:absolute;top:10px;right:60px;font-weight:bold;padding:2px 6px;border-radius:4px;color:#000;}
+.customer-card .status{position:absolute;top:10px;right:60px;font-weight:bold;padding:2px 6px;border-radius:4px;color:#fff;}
 .customer-card .delete-btn{position:absolute;top:10px;right:10px;background:red;color:#fff;padding:2px 6px;font-size:12px;border-radius:4px;cursor:pointer;}
 #customerDetail{background:#1e1e1e;padding:25px;border-radius:14px;max-width:550px;margin:auto;animation:fadeSlide 0.4s;box-shadow:0 0 20px rgba(255,215,0,0.5);}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
@@ -49,7 +48,7 @@ canvas{background:#111;border-radius:10px;padding:10px;}
 ::-webkit-scrollbar-track{background:#0b0b0b;}
 ::-webkit-scrollbar-thumb{background:gold;border-radius:6px;}
 button:active{transform:scale(0.95);box-shadow:0 0 5px rgba(255,215,0,0.8);}
-.customer-card:hover{box-shadow:0 0 12px rgba(255,215,0,0.7);}
+.back-btn{margin-bottom:15px;padding:8px 14px;background:#333;color:#fff;border-radius:6px;}
 </style>
 </head>
 <body>
@@ -61,7 +60,7 @@ button:active{transform:scale(0.95);box-shadow:0 0 5px rgba(255,215,0,0.8);}
 </div>
 <div id="mainScreen" class="hidden">
   <header>
-    <h2>Merhaba Zeynel</h2>
+    <h2 id="welcomeMsg">Merhaba</h2>
     <button onclick="logout()">Çıkış</button>
   </header>
   <section>
@@ -76,7 +75,7 @@ button:active{transform:scale(0.95);box-shadow:0 0 5px rgba(255,215,0,0.8);}
   </section>
 </div>
 <div id="customerDetail" class="hidden">
-  <button onclick="closeDetail()" style="margin-bottom:15px;">← Geri</button>
+  <button class="back-btn" onclick="closeDetail()">← Geri</button>
   <h2 id="detailName"></h2>
   <p>Toplam Borç: <span id="detailTotal">0</span> TL</p>
   <p>Ödeme Durumu: <span id="detailStatus"></span></p>
@@ -99,18 +98,37 @@ button:active{transform:scale(0.95);box-shadow:0 0 5px rgba(255,215,0,0.8);}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const PASSWORD="zeynelcetin934";
-let customers=[
+
+// localStorage'dan yükle
+let customers = JSON.parse(localStorage.getItem("customers")) || [
   {name:"Ahmet",debt:300,payments:[{amount:50,date:"2025-08-10"}]},
   {name:"Ayşe",debt:150,payments:[]},
   {name:"Mehmet",debt:500,payments:[{amount:200,date:"2025-08-05"}]}
 ];
+
 let currentCustomer=null;
+
+// Verileri kaydet
+function saveData(){
+  localStorage.setItem("customers",JSON.stringify(customers));
+}
+
 function login(){
   const val=document.getElementById("passwordInput").value;
-  if(val===PASSWORD){document.getElementById("loginScreen").classList.add("hidden");document.getElementById("mainScreen").classList.remove("hidden");renderCustomers();renderStats();}
-  else{document.getElementById("error").innerText="Şifre yanlış!";}
+  if(val===PASSWORD){
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("mainScreen").classList.remove("hidden");
+    document.getElementById("welcomeMsg").innerText="Merhaba Kullanıcı";
+    renderCustomers();renderStats();
+  } else {
+    document.getElementById("error").innerText="Şifre yanlış!";
+  }
 }
-function logout(){document.getElementById("mainScreen").classList.add("hidden");document.getElementById("loginScreen").classList.remove("hidden");document.getElementById("passwordInput").value="";}
+function logout(){
+  document.getElementById("mainScreen").classList.add("hidden");
+  document.getElementById("loginScreen").classList.remove("hidden");
+  document.getElementById("passwordInput").value="";
+}
 function renderCustomers(){
   const list=document.getElementById("customerList");
   list.innerHTML="";
@@ -134,10 +152,19 @@ function showDetail(index){
   document.getElementById("detailTotal").innerText=currentCustomer.debt;
   renderPayments();updateDetailStatus();
 }
-function closeDetail(){currentCustomer=null;document.getElementById("customerDetail").classList.add("hidden");document.getElementById("mainScreen").classList.remove("hidden");renderCustomers();}
+function closeDetail(){
+  currentCustomer=null;
+  document.getElementById("customerDetail").classList.add("hidden");
+  document.getElementById("mainScreen").classList.remove("hidden");
+  renderCustomers();renderStats();
+}
 function renderPayments(){
   const ul=document.getElementById("paymentHistory");ul.innerHTML="";
-  currentCustomer.payments.forEach(p=>{const li=document.createElement("li");li.innerHTML=`<span>${p.date}</span><span>${p.amount} TL</span>`;ul.appendChild(li);});
+  currentCustomer.payments.forEach(p=>{
+    const li=document.createElement("li");
+    li.innerHTML=`<span>${p.date}</span><span>${p.amount} TL</span>`;
+    ul.appendChild(li);
+  });
 }
 function addPayment(){
   const val=parseFloat(document.getElementById("paymentAmount").value);
@@ -145,9 +172,11 @@ function addPayment(){
     const today=new Date().toISOString().split('T')[0];
     currentCustomer.payments.push({amount:val,date:today});
     currentCustomer.debt-=val;
+    saveData();
     document.getElementById("paymentAmount").value="";
     document.getElementById("detailTotal").innerText=currentCustomer.debt;
-    renderPayments();updateDetailStatus();renderStats();alert("Ödeme kaydedildi ✅");
+    renderPayments();updateDetailStatus();renderCustomers();renderStats();
+    alert("Ödeme kaydedildi ✅");
   }else alert("Geçersiz tutar!");
 }
 function updateDetailStatus(){
@@ -156,17 +185,28 @@ function updateDetailStatus(){
   else if(currentCustomer.debt<=200){statusEl.innerText="Düşük Borç";statusEl.style.color="orange";}
   else{statusEl.innerText="Yüksek Borç";statusEl.style.color="red";}
 }
-function showAddCustomer(){document.getElementById("popup").classList.add("show");document.getElementById("newCustomerName").value="";document.getElementById("newCustomerDebt").value="";}
+function showAddCustomer(){
+  document.getElementById("popup").classList.add("show");
+  document.getElementById("newCustomerName").value="";
+  document.getElementById("newCustomerDebt").value="";
+}
 function closePopup(){document.getElementById("popup").classList.remove("show");}
 function addCustomer(){
   const name=document.getElementById("newCustomerName").value.trim();
   const debt=parseFloat(document.getElementById("newCustomerDebt").value);
-  if(name!==""){
-    customers.push({name,debt:!isNaN(debt)?debt:0,payments:[]});
-    renderCustomers();closePopup();renderStats();
+  if(name===""){alert("Müşteri adı boş olamaz!");return;}
+  if(customers.some(c=>c.name.toLowerCase()===name.toLowerCase())){alert("Bu müşteri zaten var!");return;}
+  if(!isNaN(debt)&&debt<0){alert("Borç negatif olamaz!");return;}
+  customers.push({name,debt:!isNaN(debt)?debt:0,payments:[]});
+  saveData();renderCustomers();closePopup();renderStats();
+}
+function deleteCustomer(e,index){
+  e.stopPropagation();
+  if(confirm("Müşteriyi silmek istediğine emin misin?")){
+    customers.splice(index,1);
+    saveData();renderCustomers();renderStats();
   }
 }
-function deleteCustomer(e,index){e.stopPropagation();if(confirm("Müşteriyi silmek istediğine emin misin?")){customers.splice(index,1);renderCustomers();renderStats();}}
 let debtChart,payChart;
 function renderStats(){
   document.getElementById("stats").classList.remove("hidden");
@@ -174,6 +214,7 @@ function renderStats(){
   const ctxPay=document.getElementById("paymentChart").getContext('2d');
   if(debtChart) debtChart.destroy();
   if(payChart) payChart.destroy();
+  if(customers.length===0)return;
   debtChart=new Chart(ctxDebt,{type:'bar',data:{labels:customers.map(c=>c.name),datasets:[{label:'Toplam Borç',data:customers.map(c=>c.debt),backgroundColor:'gold'}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
   payChart=new Chart(ctxPay,{type:'line',data:{labels:customers.map(c=>c.name),datasets:[{label:'Ödenen Tutar',data:customers.map(c=>c.payments.reduce((a,b)=>a+b.amount,0)),borderColor:'gold',backgroundColor:'rgba(255,215,0,0.3)',fill:true,tension:0.4}]} ,options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
 }
