@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bakkal Veresiye Paneli</title>
+<style>
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  background: #121212;
+  color: #fff;
+}
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+.hidden { display: none; }
+input, button { margin: 10px; padding: 10px; border-radius: 5px; border: none; }
+button { background: gold; color: #121212; cursor: pointer; transition: transform 0.2s; }
+button:hover { transform: scale(1.05); }
+.customer-list { display: flex; flex-direction: column; width: 300px; }
+.customer-card { background: #222; margin: 5px 0; padding: 10px; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+.customer-card:hover { background: #333; }
+.customer-detail { background: #1e1e1e; padding: 20px; border-radius: 10px; width: 80%; max-width: 400px; }
+.error { color: red; }
+header { display: flex; justify-content: space-between; width: 80%; max-width: 400px; }
+</style>
+</head>
+<body>
+<div id="loginScreen" class="screen">
+  <h2>Bakkal Veresiye Paneli</h2>
+  <input type="password" id="passwordInput" placeholder="Şifre">
+  <button onclick="login()">Giriş</button>
+  <p id="loginError" class="error"></p>
+</div>
+
+<div id="mainScreen" class="screen hidden">
+  <header>
+    <h1>Merhaba Zeynel</h1>
+    <button onclick="logout()">Çıkış</button>
+  </header>
+  
+  <section class="customer-section">
+    <h2>Müşteriler</h2>
+    <button onclick="showAddCustomer()">+ Yeni Müşteri</button>
+    <div id="customerList" class="customer-list"></div>
+  </section>
+  
+  <section id="customerDetail" class="customer-detail hidden">
+    <button onclick="closeDetail()">Geri</button>
+    <h2 id="detailName"></h2>
+    <p>Toplam Borç: <span id="detailTotal">0</span> TL</p>
+    <h3>Ödeme Geçmişi</h3>
+    <ul id="paymentHistory"></ul>
+    <input type="number" id="paymentAmount" placeholder="Ödenen Tutar">
+    <button onclick="addPayment()">Ödendi</button>
+  </section>
+</div>
+
+<script>
+const PASSWORD = "zeynelcetin934";
+let customers = [
+  {name: "Ahmet", debt: 200, payments: [{amount:50, date:"2025-08-10"}]},
+  {name: "Ayşe", debt: 100, payments: []}
+];
+let currentCustomer = null;
+
+function login() {
+  const input = document.getElementById("passwordInput").value;
+  if(input === PASSWORD){
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("mainScreen").classList.remove("hidden");
+    renderCustomers();
+  } else {
+    document.getElementById("loginError").innerText = "Şifre yanlış!";
+  }
+}
+
+function logout() {
+  document.getElementById("mainScreen").classList.add("hidden");
+  document.getElementById("loginScreen").classList.remove("hidden");
+}
+
+function renderCustomers() {
+  const list = document.getElementById("customerList");
+  list.innerHTML = "";
+  customers.forEach((c, index) => {
+    const div = document.createElement("div");
+    div.className = "customer-card";
+    div.innerHTML = `${c.name} - Toplam Borç: ${c.debt} TL`;
+    div.onclick = () => showDetail(index);
+    list.appendChild(div);
+  });
+}
+
+function showDetail(index) {
+  currentCustomer = customers[index];
+  document.getElementById("mainScreen").classList.add("hidden");
+  document.getElementById("customerDetail").classList.remove("hidden");
+  document.getElementById("detailName").innerText = currentCustomer.name;
+  document.getElementById("detailTotal").innerText = currentCustomer.debt;
+  renderPayments();
+}
+
+function renderPayments() {
+  const history = document.getElementById("paymentHistory");
+  history.innerHTML = "";
+  currentCustomer.payments.forEach(p => {
+    const li = document.createElement("li");
+    li.innerText = `${p.date} - ${p.amount} TL`;
+    history.appendChild(li);
+  });
+}
+
+function addPayment() {
+  const amount = parseFloat(document.getElementById("paymentAmount").value);
+  if(!isNaN(amount) && amount > 0 && amount <= currentCustomer.debt) {
+    const today = new Date().toISOString().split('T')[0];
+    currentCustomer.payments.push({amount, date: today});
+    currentCustomer.debt -= amount;
+    document.getElementById("paymentAmount").value = "";
+    document.getElementById("detailTotal").innerText = currentCustomer.debt;
+    renderPayments();
+    alert("Ödeme kaydedildi ✅");
+  } else {
+    alert("Geçersiz tutar!");
+  }
+}
+
+function closeDetail() {
+  currentCustomer = null;
+  document.getElementById("customerDetail").classList.add("hidden");
+  document.getElementById("mainScreen").classList.remove("hidden");
+  renderCustomers();
+}
+
+function showAddCustomer() {
+  const name = prompt("Yeni müşteri adı:");
+  if(name) {
+    customers.push({name, debt: 0, payments: []});
+    renderCustomers();
+  }
+}
+</script>
+</body>
+</html>
