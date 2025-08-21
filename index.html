@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bakkal Veresiye Paneli - Gelişmiş</title>
 <style>
-  :root{--gold:#FFD700;--bg:#0b0b0b;--card:#1e1e1e;--panel:#1a1a1a;}
-  body{margin:0;font-family:'Segoe UI',sans-serif;background:var(--bg);color:#f5f5f5;}
+  :root{
+    --gold:#FFD700;
+    --bg:#0b0b0b;
+    --card:#1e1e1e;
+    --panel:#1a1a1a;
+  }
+  body{margin:0;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:var(--bg);color:#f5f5f5;}
   .hidden{display:none;}
   button,input{border:none;border-radius:6px;outline:none;font-size:16px;}
   button{cursor:pointer;transition:all 0.2s;}
@@ -68,9 +73,6 @@
   ::-webkit-scrollbar-track{background:#0b0b0b;}
   ::-webkit-scrollbar-thumb{background:gold;border-radius:6px;}
   button:active{transform:scale(0.97);}
-  /* mesaj */
-  #msgBox{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:8px;opacity:0;transition:.3s;z-index:999;}
-  #msgBox.show{opacity:1;}
 </style>
 </head>
 <body>
@@ -107,8 +109,8 @@
 
     <section id="stats">
       <h3>İstatistikler</h3>
-      <canvas id="debtChart"></canvas>
-      <canvas id="paymentChart" style="margin-top:20px;"></canvas>
+      <canvas id="debtChart" width="400" height="200"></canvas>
+      <canvas id="paymentChart" width="400" height="200" style="margin-top:20px;"></canvas>
     </section>
   </div>
 
@@ -137,7 +139,7 @@
     </div>
   </div>
 
-  <!-- CAMERA MODAL -->
+  <!-- CAMERA MODAL (enroll / login) -->
   <div id="cameraModal">
     <div class="cam-box">
       <h3 id="camTitle">Kamera</h3>
@@ -151,233 +153,314 @@
     </div>
   </div>
 
-  <div id="msgBox"></div>
+  <!-- LIBS -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
 <script>
 /* =================== AYARLAR =================== */
-const PASSWORD="zeynelcetin934";
-const MODEL_URL="https://cdn.jsdelivr.net/npm/face-api.js/models";
-const FACE_LIMIT=2;
-const FACE_THRESHOLD=0.55;
+const PASSWORD = "zeynelcetin934";
+const MODEL_URL = "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights";
+const FACE_LIMIT = 2;
+const FACE_THRESHOLD = 0.55; // daha sıkı eşik
 
 /* =================== VERİLER =================== */
-let customers=JSON.parse(localStorage.getItem("customers"))||[
+// localStorage'dan yükle
+let customers = JSON.parse(localStorage.getItem("customers")) || [
   {name:"Ahmet",debt:300,payments:[{amount:50,date:"2025-08-10"}]},
   {name:"Ayşe",debt:150,payments:[]},
   {name:"Mehmet",debt:500,payments:[{amount:200,date:"2025-08-05"}]}
 ];
-let faceProfiles=JSON.parse(localStorage.getItem("faceProfiles")||"[]");
-let currentCustomer=null;
-let debtChart,payChart;
+// kayıtlı yüzler: [{label:"Zeynel", descriptors:[Float32Array[], ...]}]
+let faceProfiles = JSON.parse(localStorage.getItem("faceProfiles")||"[]");
+let currentCustomer = null;
+let debtChart, payChart;
 
 /* =================== YARDIMCILAR =================== */
-function saveData(){localStorage.setItem("customers",JSON.stringify(customers));}
-function saveFaces(){localStorage.setItem("faceProfiles",JSON.stringify(faceProfiles));updateEnrollButton();}
-function updateEnrollButton(){const btn=document.getElementById("btnEnroll");faceProfiles.length>=FACE_LIMIT?btn.classList.add("hidden"):btn.classList.remove("hidden");}
-function money(n){return (Math.round((n+Number.EPSILON)*100)/100).toString().replace(".",",");}
-function showMsg(txt){const box=document.getElementById("msgBox");box.innerText=txt;box.classList.add("show");setTimeout(()=>box.classList.remove("show"),2000);}
+function saveData(){
+  localStorage.setItem("customers", JSON.stringify(customers));
+}
+function saveFaces(){
+  localStorage.setItem("faceProfiles", JSON.stringify(faceProfiles));
+  updateEnrollButton();
+}
+function updateEnrollButton(){
+  const btnEnroll = document.getElementById("btnEnroll");
+  if(faceProfiles.length >= FACE_LIMIT){
+    btnEnroll.classList.add("hidden");
+  } else {
+    btnEnroll.classList.remove("hidden");
+  }
+}
+function money(n){ return (Math.round((n + Number.EPSILON)*100)/100).toString().replace(".",","); }
 
-/* =================== GİRİŞ =================== */
-document.getElementById("btnPwdLogin").onclick=()=>{
-  const val=document.getElementById("passwordInput").value;
-  if(val===PASSWORD){enterApp("Şifre");} else {showErr("Şifre yanlış!");}
+/* =================== GİRİŞ İŞLEMLERİ =================== */
+document.getElementById("btnPwdLogin").onclick = () => {
+  const val = document.getElementById("passwordInput").value;
+  if(val===PASSWORD){ enterApp("Şifre"); } else { showErr("Şifre yanlış!"); }
 };
-document.getElementById("btnFaceLogin").onclick=()=>openCamera("login");
-document.getElementById("btnEnroll").onclick=()=>{if(faceProfiles.length>=FACE_LIMIT){showErr("En fazla 2 kişi kaydedilebilir.");return;}openCamera("enroll");};
-function showErr(msg){document.getElementById("error").innerText=msg;setTimeout(()=>{document.getElementById("error").innerText="";},3000);}
+document.getElementById("btnFaceLogin").onclick = () => openCamera("login");
+document.getElementById("btnEnroll").onclick = () => {
+  if(faceProfiles.length >= FACE_LIMIT){ showErr("En fazla 2 kişi kaydedilebilir."); return; }
+  openCamera("enroll");
+};
+function showErr(msg){ document.getElementById("error").innerText = msg; setTimeout(()=>{document.getElementById("error").innerText="";}, 3000); }
+
 function enterApp(method){
   document.getElementById("loginScreen").classList.add("hidden");
   document.getElementById("mainScreen").classList.remove("hidden");
-  document.getElementById("welcomeMsg").innerText =
-    method==="Şifre" ? "Merhaba Kullanıcı" :
-    method==="Face"   ? "Merhaba 😊" :
-    "Merhaba";
-  renderCustomers();renderStats();
+  document.getElementById("welcomeMsg").innerText = `Merhaba ${method==="Şifre"?"Kullanıcı":"👋"}`;
+  renderCustomers(); renderStats();
 }
 
-/* =================== MÜŞTERİLER =================== */
+/* =================== MÜŞTERİ LİSTESİ =================== */
 function renderCustomers(){
-  const list=document.getElementById("customerList");list.innerHTML="";
+  const list = document.getElementById("customerList");
+  list.innerHTML = "";
   customers.forEach((c,i)=>{
-    const card=document.createElement("div");card.className="customer-card";
-    let statusColor="#2ecc71",statusText="Ödendi";
-    if(c.debt>500){statusColor="#e74c3c";statusText="Yüksek Borç";}
-    else if(c.debt>0){statusColor="#f39c12";statusText="Borç Var";}
-    const nameEl=document.createElement("div");nameEl.className="c-name";nameEl.textContent=c.name;
-    const debtEl=document.createElement("div");debtEl.className="c-debt";debtEl.textContent=`${money(c.debt)} TL`;
-    const statusEl=document.createElement("div");statusEl.className="c-status";statusEl.style.background=statusColor;statusEl.textContent=statusText;
-    const actions=document.createElement("div");actions.className="c-actions";
-    const btnOpen=document.createElement("button");btnOpen.className="btn-mini btn-open";btnOpen.textContent="Aç";
-    const btnDel=document.createElement("button");btnDel.className="btn-mini btn-delete";btnDel.textContent="Sil";
-    btnOpen.onclick=(e)=>{e.stopPropagation();showDetail(i);};btnDel.onclick=(e)=>{e.stopPropagation();deleteCustomer(i);};
-    actions.appendChild(btnOpen);actions.appendChild(btnDel);
-    card.appendChild(nameEl);card.appendChild(debtEl);card.appendChild(statusEl);card.appendChild(actions);
-    card.onclick=()=>showDetail(i);list.appendChild(card);
+    const card=document.createElement("div");
+    card.className="customer-card";
+
+    let statusColor="#2ecc71", statusText="Ödendi";
+    if(c.debt>500){ statusColor="#e74c3c"; statusText="Yüksek Borç"; }
+    else if(c.debt>0){ statusColor="#f39c12"; statusText="Borç Var"; }
+
+    const nameEl = document.createElement("div"); nameEl.className="c-name"; nameEl.textContent = c.name;
+    const debtEl = document.createElement("div"); debtEl.className="c-debt"; debtEl.textContent = `${c.debt} TL`;
+
+    const statusEl = document.createElement("div"); statusEl.className="c-status";
+    statusEl.style.background = statusColor; statusEl.textContent = statusText;
+
+    const actions = document.createElement("div"); actions.className="c-actions";
+    const btnOpen = document.createElement("button"); btnOpen.className="btn-mini btn-open"; btnOpen.textContent="Aç";
+    const btnDel = document.createElement("button"); btnDel.className="btn-mini btn-delete"; btnDel.textContent="Sil";
+
+    btnOpen.onclick = (e)=>{ e.stopPropagation(); showDetail(i); };
+    btnDel.onclick = (e)=>{ e.stopPropagation(); deleteCustomer(i); };
+
+    actions.appendChild(btnOpen);
+    actions.appendChild(btnDel);
+
+    card.appendChild(nameEl);
+    card.appendChild(debtEl);
+    card.appendChild(statusEl);
+    card.appendChild(actions);
+
+    card.onclick=()=>showDetail(i);
+    list.appendChild(card);
   });
 }
+
 function showDetail(index){
-  currentCustomer=customers[index];
+  currentCustomer = customers[index];
   document.getElementById("mainScreen").classList.add("hidden");
   document.getElementById("customerDetail").classList.remove("hidden");
-  document.getElementById("detailName").innerText=currentCustomer.name;
-  document.getElementById("detailTotal").innerText=money(currentCustomer.debt);
-  renderPayments();updateDetailStatus();
+  document.getElementById("detailName").innerText = currentCustomer.name;
+  document.getElementById("detailTotal").innerText = currentCustomer.debt;
+  renderPayments(); updateDetailStatus();
 }
-function closeDetail(){currentCustomer=null;document.getElementById("customerDetail").classList.add("hidden");
-                       function closeDetail(){
-  currentCustomer=null;
+function closeDetail(){
+  currentCustomer = null;
   document.getElementById("customerDetail").classList.add("hidden");
   document.getElementById("mainScreen").classList.remove("hidden");
+  renderCustomers(); renderStats();
 }
 function renderPayments(){
-  const list=document.getElementById("paymentHistory");list.innerHTML="";
+  const ul = document.getElementById("paymentHistory"); ul.innerHTML="";
   currentCustomer.payments.forEach(p=>{
     const li=document.createElement("li");
-    li.textContent=`${p.amount} TL - ${p.date}`;
-    list.appendChild(li);
+    li.innerHTML = `<span>${p.date}</span><span>${p.amount} TL</span>`;
+    ul.appendChild(li);
   });
 }
-function updateDetailStatus(){
-  let st="Ödendi";
-  if(currentCustomer.debt>500)st="Yüksek Borç";
-  else if(currentCustomer.debt>0)st="Borç Var";
-  document.getElementById("detailStatus").innerText=st;
-}
 function addPayment(){
-  const amt=parseFloat(document.getElementById("paymentAmount").value);
-  if(isNaN(amt)||amt<=0)return;
-  currentCustomer.debt-=amt;
-  currentCustomer.payments.push({amount:amt,date:new Date().toLocaleDateString()});
-  saveData();document.getElementById("detailTotal").innerText=money(currentCustomer.debt);
-  renderPayments();updateDetailStatus();renderCustomers();renderStats();
-  document.getElementById("paymentAmount").value="";
+  const val=parseFloat(document.getElementById("paymentAmount").value);
+  if(!isNaN(val)&&val>0&&val<=currentCustomer.debt){
+    const today=new Date().toISOString().split('T')[0];
+    currentCustomer.payments.push({amount:val,date:today});
+    currentCustomer.debt = Math.max(0, +(currentCustomer.debt - val).toFixed(2));
+    saveData();
+    document.getElementById("paymentAmount").value="";
+    document.getElementById("detailTotal").innerText=currentCustomer.debt;
+    renderPayments(); updateDetailStatus(); renderCustomers(); renderStats();
+    alert("Ödeme kaydedildi ✅");
+  } else alert("Geçersiz tutar!");
 }
-function deleteCustomer(i){
-  if(confirm("Silmek istediğine emin misin?")){
-    customers.splice(i,1);saveData();renderCustomers();renderStats();
-  }
+function updateDetailStatus(){
+  const statusEl=document.getElementById("detailStatus");
+  if(currentCustomer.debt===0){statusEl.innerText="Borç Yok";statusEl.style.color="#2ecc71";}
+  else if(currentCustomer.debt<=200){statusEl.innerText="Düşük Borç";statusEl.style.color="#f39c12";}
+  else{statusEl.innerText="Yüksek Borç";statusEl.style.color="#e74c3c";}
 }
-
-/* =================== YENİ MÜŞTERİ =================== */
-function showAddCustomer(){document.getElementById("popup").classList.add("show");}
-function closePopup(){document.getElementById("popup").classList.remove("show");}
-function addCustomer(){
-  const n=document.getElementById("newCustomerName").value.trim();
-  const d=parseFloat(document.getElementById("newCustomerDebt").value)||0;
-  if(!n)return;
-  customers.push({name:n,debt:d,payments:[]});
-  saveData();closePopup();renderCustomers();renderStats();
+function showAddCustomer(){
+  document.getElementById("popup").classList.add("show");
   document.getElementById("newCustomerName").value="";
   document.getElementById("newCustomerDebt").value="";
 }
+function closePopup(){ document.getElementById("popup").classList.remove("show"); }
+function addCustomer(){
+  const name=document.getElementById("newCustomerName").value.trim();
+  const debt=parseFloat(document.getElementById("newCustomerDebt").value);
+  if(name===""){alert("Müşteri adı boş olamaz!");return;}
+  if(customers.some(c=>c.name.toLowerCase()===name.toLowerCase())){alert("Bu müşteri zaten var!");return;}
+  if(!isNaN(debt)&&debt<0){alert("Borç negatif olamaz!");return;}
+  customers.push({name,debt:!isNaN(debt)?+debt:0,payments:[]});
+  saveData(); renderCustomers(); closePopup(); renderStats();
+}
+function deleteCustomer(index){
+  if(confirm("Müşteriyi silmek istediğine emin misin?")){
+    customers.splice(index,1);
+    saveData(); renderCustomers(); renderStats();
+  }
+}
 
-/* =================== YEDEK =================== */
+/* =================== İSTATİSTİK =================== */
+function renderStats(){
+  const ctxDebt=document.getElementById("debtChart").getContext('2d');
+  const ctxPay=document.getElementById("paymentChart").getContext('2d');
+  if(debtChart) debtChart.destroy();
+  if(payChart) payChart.destroy();
+  if(customers.length===0) return;
+  debtChart=new Chart(ctxDebt,{
+    type:'bar',
+    data:{labels:customers.map(c=>c.name),datasets:[{label:'Toplam Borç',data:customers.map(c=>c.debt),backgroundColor:'gold'}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+  });
+  payChart=new Chart(ctxPay,{
+    type:'line',
+    data:{labels:customers.map(c=>c.name),datasets:[{label:'Ödenen Tutar',data:customers.map(c=>c.payments.reduce((a,b)=>a+b.amount,0)),borderColor:'gold',backgroundColor:'rgba(255,215,0,0.3)',fill:true,tension:0.4}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+  });
+}
+
+/* =================== YEDEKLEME =================== */
 function downloadBackup(){
-  const data={customers,faces:faceProfiles};
-  const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);a.download="yedek.json";a.click();
+  const data = { customers, faceProfiles };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "bakkal_backup.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
 }
 function uploadBackup(){
-  const inp=document.createElement("input");inp.type="file";inp.accept=".json";
-  inp.onchange=()=>{
-    const f=inp.files[0];if(!f)return;
-    const r=new FileReader();
-    r.onload=e=>{
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = "application/json";
+  inp.onchange = (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
       try{
-        const obj=JSON.parse(e.target.result);
-        if(obj.customers&&Array.isArray(obj.customers))customers=obj.customers;
-        if(obj.faces&&Array.isArray(obj.faces))faceProfiles=obj.faces;
-        saveData();saveFaces();renderCustomers();renderStats();showMsg("Yedek yüklendi!");
-      }catch(err){showMsg("Hatalı dosya");}
-    };r.readAsText(f);
-  };inp.click();
+        const json = JSON.parse(reader.result);
+        if(json.customers){ customers = json.customers; saveData(); }
+        if(json.faceProfiles){ faceProfiles = json.faceProfiles; saveFaces(); }
+        renderCustomers(); renderStats();
+        alert("Yedek geri yüklendi ✅");
+      }catch(err){ alert("Dosya hatalı."); }
+    };
+    reader.readAsText(file);
+  };
+  inp.click();
+}
+
+/* =================== YÜZ TANIMA =================== */
+let stream=null, mode="login";
+const cameraModal = document.getElementById("cameraModal");
+const video = document.getElementById("video");
+const overlay = document.getElementById("overlay");
+const ctx = overlay.getContext("2d");
+document.getElementById("btnCloseCam").onclick = closeCamera;
+document.getElementById("btnCapture").onclick = onCapture;
+
+async function ensureModels(){
+  await Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+  ]);
+}
+async function openCamera(m){
+  mode = m; updateEnrollButton();
+  document.getElementById("camTitle").innerText = mode==="enroll" ? "Yüz Kaydet (maks. 2)" : "Yüzle Giriş";
+  document.getElementById("camInfo").innerText = mode==="enroll" ? "Kameraya bak, yeterince net olunca 'Yüzü Tara / Kaydet'." : "Kameraya bak ve 'Yüzü Tara / Kaydet' butonuna bas.";
+  cameraModal.classList.add("show");
+  await ensureModels();
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+    video.srcObject = stream;
+    await new Promise(res=> video.onloadedmetadata = res);
+    overlay.width = video.videoWidth; overlay.height = video.videoHeight;
+  }catch(e){
+    alert("Kameraya erişilemedi.");
+    closeCamera();
+  }
+}
+function closeCamera(){
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  cameraModal.classList.remove("show");
+  ctx.clearRect(0,0,overlay.width,overlay.height);
+}
+
+async function onCapture(){
+  if(!video.videoWidth){ return; }
+  const det = await faceapi
+    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+
+  ctx.clearRect(0,0,overlay.width,overlay.height);
+  if(det){
+    faceapi.draw.drawDetections(overlay, [det.detection]);
+    faceapi.draw.drawFaceLandmarks(overlay, [det]);
+  }
+
+  if(!det){ document.getElementById("camInfo").innerText = "Yüz algılanamadı, biraz daha ışığa dön."; return; }
+
+  if(mode==="enroll"){
+    if(faceProfiles.length >= FACE_LIMIT){ alert("Limit dolu (2)."); return; }
+    const label = prompt("İsim gir (örn. Zeynel):") || `Kullanıcı${faceProfiles.length+1}`;
+    const desc = Array.from(det.descriptor); // Float32Array -> Array
+    faceProfiles.push({ label, descriptors:[desc] });
+    saveFaces();
+    alert(`Yüz kaydedildi: ${label} ✅`);
+    if(faceProfiles.length >= FACE_LIMIT){
+      alert("2 kişi tamamlandı. Artık sadece 'Yüzle Giriş' kullanılır.");
+    }
+    closeCamera();
+  } else {
+    // login
+    if(faceProfiles.length===0){ alert("Kayıtlı yüz yok."); return; }
+    const best = findBestMatch(det.descriptor);
+    if(best && best.distance < FACE_THRESHOLD){
+      closeCamera();
+      enterApp("Face");
+    } else {
+      alert("Tanıma başarısız. Tekrar dene.");
+    }
+  }
+}
+function euclidean(a,b){
+  let s=0; for(let i=0;i<a.length;i++){ const d=a[i]-b[i]; s+=d*d; } return Math.sqrt(s);
+}
+function findBestMatch(queryDescriptor){
+  let best = null;
+  faceProfiles.forEach(p=>{
+    p.descriptors.forEach(d=>{
+      const dist = euclidean(queryDescriptor, Float32Array.from(d));
+      if(!best || dist < best.distance){ best = { label:p.label, distance:dist }; }
+    });
+  });
+  return best;
 }
 
 /* =================== ÇIKIŞ =================== */
 function logout(){
   document.getElementById("mainScreen").classList.add("hidden");
-  document.getElementById("customerDetail").classList.add("hidden");
   document.getElementById("loginScreen").classList.remove("hidden");
+  document.getElementById("passwordInput").value="";
 }
 
-/* =================== İSTATİSTİK =================== */
-function renderStats(){
-  const ctx=document.getElementById("debtChart").getContext("2d");
-  const ctx2=document.getElementById("paymentChart").getContext("2d");
-  if(debtChart)debtChart.destroy();if(payChart)payChart.destroy();
-  debtChart=new Chart(ctx,{type:"bar",data:{
-    labels:customers.map(c=>c.name),
-    datasets:[{label:"Borçlar",data:customers.map(c=>c.debt),backgroundColor:"gold"}]
-  }});
-  let dates={},labels=[],data=[];
-  customers.forEach(c=>c.payments.forEach(p=>{
-    dates[p.date]=(dates[p.date]||0)+p.amount;
-  }));
-  labels=Object.keys(dates);data=Object.values(dates);
-  payChart=new Chart(ctx2,{type:"line",data:{
-    labels:labels,
-    datasets:[{label:"Ödemeler",data:data,borderColor:"gold",tension:.3}]}
-  });
-}
-
-/* =================== KAMERA & FACE =================== */
-let video=document.getElementById("video");
-let overlay=document.getElementById("overlay");
-let ctx=overlay.getContext("2d");
-let camMode=null;
-
-async function openCamera(mode){
-  camMode=mode;
-  document.getElementById("cameraModal").classList.add("show");
-  document.getElementById("camTitle").innerText=mode==="login"?"Yüzle Giriş":"Yüz Kaydet";
-  document.getElementById("camInfo").innerText="Kamera açılıyor...";
-  try{
-    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-    const stream=await navigator.mediaDevices.getUserMedia({video:true});
-    video.srcObject=stream;video.setAttribute("playsinline",true);
-    await video.play();
-    requestAnimationFrame(runDetection);
-  }catch(e){showMsg("Kamera açılamadı!");}
-}
-function closeCamera(){
-  document.getElementById("cameraModal").classList.remove("show");
-  if(video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());}
-}
-document.getElementById("btnCloseCam").onclick=closeCamera;
-
-async function runDetection(){
-  if(video.readyState!==4)return requestAnimationFrame(runDetection);
-  overlay.width=video.videoWidth;overlay.height=video.videoHeight;
-  const det=await faceapi.detectSingleFace(video,new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-  ctx.clearRect(0,0,overlay.width,overlay.height);
-  if(det){faceapi.draw.drawDetections(overlay,[det]);}
-  if(document.getElementById("cameraModal").classList.contains("show"))
-    requestAnimationFrame(runDetection);
-}
-
-document.getElementById("btnCapture").onclick=async()=>{
-  const det=await faceapi.detectSingleFace(video,new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-  if(!det){showMsg("Yüz bulunamadı");return;}
-  if(camMode==="enroll"){
-    if(faceProfiles.length>=FACE_LIMIT){showMsg("Limit dolu");return;}
-    faceProfiles.push(Array.from(det.descriptor));
-    saveFaces();showMsg("Yüz kaydedildi");closeCamera();
-  }else if(camMode==="login"){
-    if(faceProfiles.length===0){showMsg("Kayıtlı yüz yok");return;}
-    let best={dist:1};for(let f of faceProfiles){
-      let d=faceapi.euclideanDistance(det.descriptor,f);
-      if(d<best.dist)best={dist:d};
-    }
-    if(best.dist<FACE_THRESHOLD){closeCamera();enterApp("Face");}
-    else{showMsg("Yüz tanınmadı");}
-  }
-};
-
+/* =================== BAŞLANGIÇ =================== */
 updateEnrollButton();
 </script>
 </body>
