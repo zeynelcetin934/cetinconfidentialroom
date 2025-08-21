@@ -1,279 +1,288 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Yüz Tanıma Uygulaması</title>
-  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f4; }
-    #app { width: 100%; max-width: 800px; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); overflow: hidden; }
-    header { background-color: #4CAF50; color: white; padding: 16px; text-align: center; font-size: 24px; }
-    main { padding: 16px; }
-    .hidden { display: none; }
-    canvas { position: absolute; top: 0; left: 0; }
-    video { width: 100%; border-radius: 8px; }
-    #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; }
-    .popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); z-index: 1000; }
-    .popup input { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
-    .popup button { width: 100%; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    .popup button:hover { background-color: #45a049; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bakkal Veresiye Paneli - Çalışan Sürüm</title>
+<style>
+:root{
+--gold:#FFD700;
+--bg:#0b0b0b;
+--card:#1e1e1e;
+--panel:#1a1a1a;
+}
+body{margin:0;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:var(--bg);color:#f5f5f5;}
+.hidden{display:none;}
+button,input{border:none;border-radius:6px;outline:none;font-size:16px;}
+button{cursor:pointer;transition:all 0.2s;}
+button:hover{transform:scale(1.05);}
+a{text-decoration:none;color:inherit;}
+#loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#111,#000);padding:20px;gap:10px;}
+#loginScreen h1{font-size:42px;margin-bottom:10px;color:gold;text-shadow:0 0 12px var(--gold),0 0 20px #fff;text-align:center;}
+.login-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#loginScreen input{padding:14px;width:280px;background:#222;color:#fff;}
+#loginScreen button{background:gold;color:#0d0d0d;padding:12px 18px;font-weight:bold;font-size:16px;border-radius:10px;box-shadow:0 0 12px rgba(255,215,0,0.6);}
+#error{color:#ff5e5e;margin-top:10px;font-weight:bold;text-shadow:0 0 5px #ff5e5e;min-height:22px}
+#mainScreen{padding:20px;animation:fadeIn 0.5s;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+header{display:flex;justify-content:space-between;align-items:center;background:#1a1a1a;padding:16px;border-radius:12px;margin-bottom:20px;box-shadow:0 0 15px rgba(255,215,0,0.25);gap:10px;flex-wrap:wrap}
+header h2{color:gold;text-shadow:0 0 12px var(--gold);font-size:24px;margin:0}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+header button{background:#ffcc00;color:#0d0d0d;padding:10px 14px;font-weight:bold;border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.4);}
+section{margin-bottom:30px;}
+.customer-list{display:flex;flex-direction:column;gap:12px;}
+.customer-card{background:#222;padding:14px 16px;border-radius:12px;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:6px 10px;align-items:center;transition:all 0.2s;box-shadow:0 0 8px rgba(0,0,0,0.5);position:relative;}
+.customer-card:hover{background:#2b2b2b;transform:translateY(-1px);box-shadow:0 0 12px rgba(255,215,0,0.35);}
+.c-name{font-weight:600;font-size:18px;}
+.c-debt{justify-self:end;font-weight:800;font-size:18px;color:gold;}
+.c-status{grid-column:1/2;grid-row:2/3;display:inline-flex;align-items:center;gap:6px;font-weight:600;padding:2px 8px;border-radius:999px;color:#fff;width:max-content}
+.c-actions{grid-column:2/3;grid-row:2/3;justify-self:end;display:flex;gap:6px}
+.btn-mini{padding:6px 10px;border-radius:8px;font-size:13px}
+.btn-delete{background:#e74c3c;color:#fff}
+.btn-open{background:#444;color:#fff}
+#customerDetail{background:#1e1e1e;padding:20px;border-radius:14px;max-width:620px;margin:14px auto;animation:fadeSlide 0.3s;box-shadow:0 0 20px rgba(255,215,0,0.35);}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+#customerDetail h2{color:gold;margin-bottom:6px;text-shadow:0 0 8px var(--gold);}
+#customerDetail p{font-size:17px;margin:6px 0;}
+#customerDetail ul{list-style:none;padding-left:0;max-height:250px;overflow-y:auto;margin-top:10px;border-top:1px solid #333;}
+#customerDetail li{padding:10px 0;border-bottom:1px solid #333;display:flex;justify-content:space-between;}
+.payment-section{display:flex;gap:10px;margin-top:12px;}
+.payment-section input{flex:1;padding:10px;border-radius:8px;background:#333;color:#fff;}
+.payment-section button{background:gold;color:#0d0d0d;font-weight:bold;box-shadow:0 0 8px rgba(255,215,0,0.4);}
+#stats{background:#222;padding:16px;border-radius:12px;max-width:900px;margin:auto;box-shadow:0 0 12px rgba(255,215,0,0.25);margin-top:20px;}
+canvas{background:#111;border-radius:10px;padding:10px;width:100%;height:auto;max-height:280px;}
+#popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;justify-content:center;align-items:center;visibility:hidden;opacity:0;transition:opacity 0.25s;}
+#popup.show{visibility:visible;opacity:1;}
+#popup-content{background:#1a1a1a;padding:20px;border-radius:16px;width:320px;display:flex;flex-direction:column;box-shadow:0 0 20px rgba(255,215,0,0.45);}
+#popup-content input{padding:12px;margin-bottom:10px;background:#333;color:#fff;border-radius:8px;font-size:16px;}
+#popup-content button{background:gold;color:#0d0d0d;padding:10px;font-weight:bold;border-radius:8px;box-shadow:0 0 10px rgba(255,215,0,0.45);}
+#cameraModal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:.25s}
+#cameraModal.show{visibility:visible;opacity:1;}
+.cam-box{background:#111;border:1px solid #333;border-radius:14px;padding:16px;max-width:480px;width:90%;display:flex;flex-direction:column;gap:10px;align-items:center}
+video,canvas#overlay{width:100%;border-radius:10px;background:#000}
+.back-btn{margin-bottom:12px;padding:8px 14px;background:#333;color:#fff;border-radius:6px;}
+::-webkit-scrollbar{width:12px;}
+::-webkit-scrollbar-track{background:#0b0b0b;}
+::-webkit-scrollbar-thumb{background:gold;border-radius:6px;}
+button:active{transform:scale(0.97);}
+</style>
 </head>
 <body>
-  <div id="app">
-    <header>
-      <span id="appTitle">Yüz Tanıma Uygulaması</span>
-      <button id="logoutButton" class="hidden">Çıkış</button>
-    </header>
-    <main>
-      <div id="loginScreen">
-        <h2>Giriş Yap</h2>
-        <input type="password" id="passwordInput" placeholder="Şifre" />
-        <button id="loginButton">Giriş</button>
-        <button id="enrollButton">Yüz Kaydı</button>
-      </div>
-      <div id="mainScreen" class="hidden">
-        <h2>Hoşgeldiniz</h2>
-        <button id="addCustomerButton">Müşteri Ekle</button>
-        <button id="viewStatsButton">İstatistikler</button>
-        <button id="backupButton">Yedekle</button>
-        <button id="restoreButton">Geri Yükle</button>
-        <button id="logoutButton">Çıkış</button>
-      </div>
-    </main>
-  </div>
+<div id="loginScreen">
+<h1>Bakkal Veresiye Paneli</h1>
+<div class="login-row">
+<input type="password" id="passwordInput" placeholder="Şifre">
+<button id="btnPwdLogin">Giriş</button>
+</div>
+<div class="login-row">
+<button id="btnFaceLogin">Yüzle Giriş</button>
+<button id="btnEnroll" title="En fazla 2 kişi">Yüz Kaydet (maks. 2)</button>
+</div>
+<p id="error"></p>
+</div>
 
-  <div id="cameraModal" class="popup hidden">
-    <video id="video" width="640" height="480" autoplay></video>
-    <canvas id="overlay"></canvas>
-    <button id="captureButton">Yüzü Kaydet</button>
-    <button id="closeCameraButton">Kapat</button>
-  </div>
+<div id="mainScreen" class="hidden">
+<header>
+<h2 id="welcomeMsg">Merhaba</h2>
+<div class="header-actions">
+<button onclick="showAddCustomer()">+ Yeni Müşteri</button>
+<button onclick="downloadBackup()">Yedek İndir</button>
+<button onclick="uploadBackup()">Yedekten Yükle</button>
+<button onclick="logout()">Çıkış</button>
+</div>
+</header>
 
-  <script>
-    const MODEL_URL = './models';
-    const PASSWORD = 'zeynelcetin934';
-    let customers = [];
-    let faceProfiles = [];
-    let faceMatcher = null;
-    let cameraMode = null;
-    const video = document.getElementById('video');
-    const overlay = document.getElementById('overlay');
-    const overlayCtx = overlay.getContext('2d');
-    const loginScreen = document.getElementById('loginScreen');
-    const mainScreen = document.getElementById('mainScreen');
-    const logoutButton = document.getElementById('logoutButton');
-    const captureButton = document.getElementById('captureButton');
-    const closeCameraButton = document.getElementById('closeCameraButton');
-    const cameraModal = document.getElementById('cameraModal');
-    const addCustomerButton = document.getElementById('addCustomerButton');
-    const viewStatsButton = document.getElementById('viewStatsButton');
-    const backupButton = document.getElementById('backupButton');
-    const restoreButton = document.getElementById('restoreButton');
-    const passwordInput = document.getElementById('passwordInput');
-    const loginButton = document.getElementById('loginButton');
-    const enrollButton = document.getElementById('enrollButton');
-    const appTitle = document.getElementById('appTitle');
+<section>
+<h3>Müşteriler</h3>
+<div id="customerList" class="customer-list"></div>
+</section>
 
-    loginButton.addEventListener('click', handleLogin);
-    enrollButton.addEventListener('click', openCameraForEnrollment);
-    logoutButton.addEventListener('click', handleLogout);
-    captureButton.addEventListener('click', handleCapture);
-    closeCameraButton.addEventListener('click', closeCamera);
+<section id="stats">
+<h3>İstatistikler</h3>
+<canvas id="debtChart" width="400" height="200"></canvas>
+<canvas id="paymentChart" width="400" height="200" style="margin-top:20px;"></canvas>
+</section>
+</div>
 
-    function handleLogin() {
-      if (passwordInput.value === PASSWORD) {
-        loginScreen.classList.add('hidden');
-        mainScreen.classList.remove('hidden');
-        loadData();
-        renderCustomers();
-        renderStats();
-      } else {
-        alert('Yanlış şifre!');
-      }
-    }
+<div id="customerDetail" class="hidden">
+<button class="back-btn" onclick="closeDetail()">← Geri</button>
+<h2 id="detailName"></h2>
+<p>Toplam Borç: <span id="detailTotal">0</span> TL</p>
+<p>Ödeme Durumu: <span id="detailStatus"></span></p>
+<h3>Ödeme Geçmişi</h3>
+<ul id="paymentHistory"></ul>
+<div class="payment-section">
+<input type="number" id="paymentAmount" placeholder="Ödenen Tutar">
+<button onclick="addPayment()">Ödendi</button>
+</div>
+</div>
 
-    function handleLogout() {
-      loginScreen.classList.remove('hidden');
-      mainScreen.classList.add('hidden');
-      saveData();
-      saveFaces();
-    }
+<div id="popup">
+<div id="popup-content">
+<h3>Yeni Müşteri Ekle</h3>
+<input type="text" id="newCustomerName" placeholder="Müşteri Adı">
+<input type="number" id="newCustomerDebt" placeholder="Başlangıç Borcu">
+<button onclick="addCustomer()">Ekle</button>
+<button onclick="closePopup()" style="margin-top:10px;background:#333;color:#fff;">İptal</button>
+</div>
+</div>
 
-    function openCameraForEnrollment() {
-      cameraMode = 'enroll';
-      openCamera();
-    }
+<div id="cameraModal">
+<div class="cam-box">
+<h3 id="camTitle">Kamera</h3>
+<video id="video" autoplay muted playsinline></video>
+<canvas id="overlay"></canvas>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+<button id="btnCapture" class="btn-mini">Yüzü Tara / Kaydet</button>
+<button id="btnCloseCam" class="btn-mini" style="background:#444;color:#fff">Kapat</button>
+</div>
+<p id="camInfo" style="font-size:14px;opacity:.9;margin:0"></p>
+</div>
+</div>
 
-    function openCameraForLogin() {
-      cameraMode = 'login';
-      openCamera();
-    }
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+const PASSWORD="zeynelcetin934";
+const MODEL_URL="https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights";
+const FACE_LIMIT=2;
+const FACE_THRESHOLD=0.55;
 
-    async function openCamera() {
-      cameraModal.classList.remove('hidden');
-      await loadModels();
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      video.srcObject = stream;
-      video.play();
-      overlay.width = video.videoWidth;
-      overlay.height = video.videoHeight;
-      detectFace();
-    }
+let customers=JSON.parse(localStorage.getItem("customers"))||[{name:"Ahmet",debt:300,payments:[{amount:50,date:"2025-08-10"}]},{name:"Ayşe",debt:150,payments:[]},{name:"Mehmet",debt:500,payments:[{amount:200,date:"2025-08-05"}]}];
+let faceProfiles=JSON.parse(localStorage.getItem("faceProfiles")||"[]").map(p=>({label:p.label,descriptors:p.descriptors.map(d=>Float32Array.from(d))}));
+let currentCustomer=null;
+let debtChart,payChart;
 
-    async function loadModels() {
-      await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-    }
+function saveData(){localStorage.setItem("customers",JSON.stringify(customers));}
+function saveFaces(){localStorage.setItem("faceProfiles",JSON.stringify(faceProfiles));updateEnrollButton();}
+function updateEnrollButton(){document.getElementById("btnEnroll").classList.toggle("hidden",faceProfiles.length>=FACE_LIMIT);}
+function money(n){return (Math.round((n+Number.EPSILON)*100)/100).toString().replace(".",",");}
 
-    async function detectFace() {
-      const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
-      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
-      if (detections.length > 0) {
-        faceapi.draw.drawDetections(overlay, detections);
-        faceapi.draw.drawFaceLandmarks(overlay, detections);
-        if (cameraMode === 'login') {
-          const bestMatch = faceMatcher.findBestMatch(detections[0].descriptor);
-          if (bestMatch.label !== 'unknown') {
-            alert('Hoşgeldiniz, ' + bestMatch.label);
-            closeCamera();
-          }
-        }
-      }
-      requestAnimationFrame(detectFace);
-    }
+document.getElementById("btnPwdLogin").onclick=()=>{const val=document.getElementById("passwordInput").value;if(val===PASSWORD)enterApp("Şifre");else showErr("Şifre yanlış!");};
+document.getElementById("btnFaceLogin").onclick=()=>openCamera("login");
+document.getElementById("btnEnroll").onclick=()=>{if(faceProfiles.length>=FACE_LIMIT){showErr("En fazla 2 kişi kaydedilebilir.");return;}openCamera("enroll");};
+function showErr(msg){document.getElementById("error").innerText=msg;setTimeout(()=>{document.getElementById("error").innerText="";},3000);}
+function enterApp(method){document.getElementById("loginScreen").classList.add("hidden");document.getElementById("mainScreen").classList.remove("hidden");document.getElementById("welcomeMsg").innerText=`Merhaba ${method==="Şifre"?"Kullanıcı":"👋"}`;renderCustomers();renderStats();}
 
-    function handleCapture() {
-      const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
-      if (detections.length > 0) {
-        if (cameraMode === 'enroll') {
-          const name = prompt('Adınızı giriniz:');
-          if (name && faceProfiles.length < 2) {
-            faceProfiles.push({ label: name, descriptors: [detections[0].descriptor] });
-            saveFaces();
-            alert('Yüz kaydedildi!');
-            closeCamera();
-          } else {
-            alert('En fazla 2 yüz kaydedebilirsiniz.');
-          }
-        }
-      }
-    }
+function renderCustomers(){
+const list=document.getElementById("customerList");list.innerHTML="";
+customers.forEach((c,i)=>{
+const card=document.createElement("div");card.className="customer-card";
+let statusColor="#2ecc71",statusText="Ödendi";
+if(c.debt>500){statusColor="#e74c3c";statusText="Yüksek Borç";}
+else if(c.debt>0){statusColor="#f39c12";statusText="Borç Var";}
+const nameEl=document.createElement("div");nameEl.className="c-name";nameEl.textContent=c.name;
+const debtEl=document.createElement("div");debtEl.className="c-debt";debtEl.textContent=`${c.debt} TL`;
+const statusEl=document.createElement("div");statusEl.className="c-status";statusEl.style.background=statusColor;statusEl.textContent=statusText;
+const actions=document.createElement("div");actions.className="c-actions";
+const btnOpen=document.createElement("button");btnOpen.className="btn-mini btn-open";btnOpen.textContent="Aç";
+const btnDel=document.createElement("button");btnDel.className="btn-mini btn-delete";btnDel.textContent="Sil";
+btnOpen.onclick=e=>{e.stopPropagation();showDetail(i);};
+btnDel.onclick=e=>{e.stopPropagation();deleteCustomer(i);};
+actions.appendChild(btnOpen);actions.appendChild(btnDel);
+card.appendChild(nameEl);card.appendChild(debtEl);card.appendChild(statusEl);card.appendChild(actions);
+card.onclick=()=>showDetail(i);list.appendChild(card);
+});
+}
 
-    function closeCamera() {
-      const stream = video.srcObject;
-      if (stream) {
-        const tracks = stream.getTracks();
-        tracks.forEach(track => track.stop());
-        video.srcObject = null;
-      }
-      cameraModal.classList.add('hidden');
-    }
+function showDetail(index){
+currentCustomer=customers[index];document.getElementById("mainScreen").classList.add("hidden");document.getElementById("customerDetail").classList.remove("hidden");document.getElementById("detailName").innerText=currentCustomer.name;document.getElementById("detailTotal").innerText=currentCustomer.debt;renderPayments();updateDetailStatus();
+}
+function closeDetail(){currentCustomer=null;document.getElementById("customerDetail").classList.add("hidden");document.getElementById("mainScreen").classList.remove("hidden");renderCustomers();renderStats();}
+function renderPayments(){const ul=document.getElementById("paymentHistory");ul.innerHTML="";currentCustomer.payments.forEach(p=>{const li=document.createElement("li");li.innerHTML=`<span>${p.date}</span><span>${p.amount} TL</span>`;ul.appendChild(li);});}
+function addPayment(){const val=parseFloat(document.getElementById("paymentAmount").value);if(!isNaN(val)&&val>0&&val<=currentCustomer.debt){const today=new Date().toISOString().split('T')[0];currentCustomer.payments.push({amount:val,date:today});currentCustomer.debt=Math.max(0,+(currentCustomer.debt-val).toFixed(2));saveData();document.getElementById("paymentAmount").value="";document.getElementById("detailTotal").innerText=currentCustomer.debt;renderPayments();updateDetailStatus();renderCustomers();renderStats();alert("Ödeme kaydedildi ✅");}else alert("Geçersiz tutar!");}
+function updateDetailStatus(){const statusEl=document.getElementById("detailStatus");if(currentCustomer.debt===0){statusEl.innerText="Borç Yok";statusEl.style.color="#2ecc71";}else if(currentCustomer.debt<=200){statusEl.innerText="Düşük Borç";statusEl.style.color="#f39c12";}else{statusEl.innerText="Yüksek Borç";statusEl.style.color="#e74c3c";}}
+function showAddCustomer(){document.getElementById("popup").classList.add("show");document.getElementById("newCustomerName").value="";document.getElementById("newCustomerDebt").value="";}
+function closePopup(){document.getElementById("popup").classList.remove("show");}
+function addCustomer(){const name=document.getElementById("newCustomerName").value.trim();const debt=parseFloat(document.getElementById("newCustomerDebt").value);if(name===""){alert("Müşteri adı boş olamaz!");return;}if(customers.some(c=>c.name.toLowerCase()===name.toLowerCase())){alert("Bu müşteri zaten var!");return;}if(!isNaN(debt)&&debt<0){alert("Borç negatif olamaz!");return;}
+customers.push({name,debt,isDebt:true,payments:[]});
+saveData();closePopup();renderCustomers();renderStats();alert("Müşteri eklendi ✅");}
 
-    function loadData() {
-      const data = JSON.parse(localStorage.getItem('customers'));
-      if (data) {
-        customers = data;
-      }
-    }
+// Silme fonksiyonu
+function deleteCustomer(index){
+if(confirm(`${customers[index].name} silinsin mi?`)){
+customers.splice(index,1);saveData();renderCustomers();renderStats();
+}
+}
 
-    function saveData() {
-      localStorage.setItem('customers', JSON.stringify(customers));
-    }
+// İstatistikler
+function renderStats(){
+const debtCtx=document.getElementById("debtChart").getContext("2d");
+const payCtx=document.getElementById("paymentChart").getContext("2d");
+const labels=customers.map(c=>c.name);
+const debts=customers.map(c=>c.debt);
+if(debtChart)debtChart.destroy();
+if(payChart)payChart.destroy();
+debtChart=new Chart(debtCtx,{type:'bar',data:{labels,datasets:[{label:'Borç (TL)',data:debts,backgroundColor:'gold'}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+const paymentsSum=customers.map(c=>c.payments.reduce((a,b)=>a+b.amount,0));
+payChart=new Chart(payCtx,{type:'bar',data:{labels,datasets:[{label:'Ödemeler (TL)',data:paymentsSum,backgroundColor:'#2ecc71'}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+}
 
-    function saveFaces() {
-      localStorage.setItem('faceProfiles', JSON.stringify(faceProfiles));
-      faceMatcher = new faceapi.FaceMatcher(faceProfiles);
-    }
+// Yedekleme
+function downloadBackup(){
+const blob=new Blob([JSON.stringify({customers,faceProfiles})],{type:'application/json'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");a.href=url;a.download="backup.json";a.click();URL.revokeObjectURL(url);
+}
+function uploadBackup(){
+const input=document.createElement("input");input.type="file";input.accept="application/json";
+input.onchange=e=>{
+const file=input.files[0];if(!file)return;
+const reader=new FileReader();reader.onload=ev=>{
+try{
+const data=JSON.parse(ev.target.result);if(data.customers)data.customers.forEach(c=>{if(!c.payments)c.payments=[]});customers=data.customers||[];faceProfiles=(data.faceProfiles||[]).map(p=>({label:p.label,descriptors:p.descriptors.map(d=>Float32Array.from(d))}));saveData();saveFaces();renderCustomers();renderStats();alert("Yedek yüklendi ✅");
+}catch(err){alert("Hatalı dosya!");}
+};reader.readAsText(file);
+};input.click();
+}
 
-    function renderCustomers() {
-      // Müşteri listeleme işlemleri
-    }
+// Çıkış
+function logout(){document.getElementById("mainScreen").classList.add("hidden");document.getElementById("loginScreen").classList.remove("hidden");}
 
-    function renderStats() {
-      // İstatistikler için basit örnek (grafik veya liste)
-      console.log('İstatistikler güncellendi.');
-    }
+// Yüz tanıma kamera fonksiyonları
+let video=document.getElementById("video"),overlay=document.getElementById("overlay"),camCtx=overlay.getContext("2d");
+let faceMatcher,currentMode="login";
 
-    // Başlangıçta yüz profillerini yükle
-    const storedFaces = JSON.parse(localStorage.getItem('faceProfiles'));
-    if (storedFaces) {
-      faceProfiles = storedFaces.map(f => {
-        return {
-          label: f.label,
-          descriptors: f.descriptors.map(d => new Float32Array(d))
-        };
-      });
-      if (faceProfiles.length > 0) {
-        faceMatcher = new faceapi.FaceMatcher(faceProfiles);
-      }
-    }
+async function openCamera(mode){
+currentMode=mode;
+document.getElementById("cameraModal").classList.add("show");
+document.getElementById("camTitle").innerText=mode==="login"?"Yüzle Giriş":"Yüz Kaydı";
+await loadModels();
+navigator.mediaDevices.getUserMedia({video:true}).then(stream=>{video.srcObject=stream;}).catch(()=>alert("Kamera açılamadı!"));
+requestAnimationFrame(detectFaces);
+}
 
-    function addCustomer(name, debt) {
-      if (!name) { alert('Ad boş olamaz'); return; }
-      debt = parseFloat(debt) || 0;
-      customers.push({ name, debt, payments: [] });
-      saveData();
-      renderCustomers();
-    }
+document.getElementById("btnCloseCam").onclick=closeCamera;
+function closeCamera(){let tracks=video.srcObject?.getTracks();if(tracks)tracks.forEach(t=>t.stop());document.getElementById("cameraModal").classList.remove("show");camCtx.clearRect(0,0,overlay.width,overlay.height);}
 
-    function backupData() {
-      const data = { customers, faceProfiles };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'backup.json';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      alert('Yedekleme tamamlandı ✅');
-    }
+async function loadModels(){
+await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+if(faceProfiles.length>0)faceMatcher=new faceapi.FaceMatcher(faceProfiles.map(p=>new faceapi.LabeledFaceDescriptors(p.label,p.descriptors)),FACE_THRESHOLD);
+}
 
-    function restoreData() {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'application/json';
-      input.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          try {
-            const json = JSON.parse(reader.result);
-            if (json.customers) customers = json.customers;
-            if (json.faceProfiles) {
-              faceProfiles = json.faceProfiles.map(f => ({
-                label: f.label,
-                descriptors: f.descriptors.map(d => new Float32Array(d))
-              }));
-              faceMatcher = new faceapi.FaceMatcher(faceProfiles);
-            }
-            saveData();
-            saveFaces();
-            renderCustomers();
-            alert('Veriler geri yüklendi ✅');
-          } catch (err) {
-            alert('Dosya hatalı!');
-          }
-        };
-        reader.readAsText(file);
-      };
-      input.click();
-    }
+async function detectFaces(){
+if(video.paused||video.ended){requestAnimationFrame(detectFaces);return;}
+overlay.width=video.videoWidth;overlay.height=video.videoHeight;
+const detections=await faceapi.detectAllFaces(video,new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+camCtx.clearRect(0,0,overlay.width,overlay.height);
+detections.forEach(d=>{const box=d.detection.box;camCtx.strokeStyle="gold";camCtx.lineWidth=2;camCtx.strokeRect(box.x,box.y,box.width,box.height);});
+if(detections.length>0){
+const d= detections[0].descriptor;
+if(currentMode==="login" && faceMatcher){
+const match=faceMatcher.findBestMatch(d);
+if(match.label!=="unknown"){closeCamera();enterApp("Yüz");return;}
+}else if(currentMode==="enroll"){
+const name=prompt("İsminizi girin:");if(!name){alert("İsim gerekli!");return;}
+faceProfiles.push({label:name,descriptors:[d]});saveFaces();closeCamera();alert("Yüz kaydedildi ✅");return;
+}
+}
+requestAnimationFrame(detectFaces);
+}
 
-    backupButton.addEventListener('click', backupData);
-    restoreButton.addEventListener('click', restoreData);
-
-    addCustomerButton.addEventListener('click', () => {
-      const name = prompt('Müşteri adı:');
-      const debt = prompt('Başlangıç borcu:');
-      addCustomer(name, debt);
-    });
-
-  </script>
+// Başlatırken enroll buton güncelle
+updateEnrollButton();
+</script>
 </body>
 </html>
