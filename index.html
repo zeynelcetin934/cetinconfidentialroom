@@ -148,141 +148,233 @@ const MODEL_URL="https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.
 const FACE_LIMIT=2;
 const FACE_THRESHOLD=0.55;
 
-let customers=JSON.parse(localStorage.getItem("customers"))||[{name:"Ahmet",debt:300,payments:[{amount:50,date:"2025-08-10"}]},{name:"Ayşe",debt:150,payments:[]},{name:"Mehmet",debt:500,payments:[{amount:200,date:"2025-08-05"}]}];
-let faceProfiles=JSON.parse(localStorage.getItem("faceProfiles")||"[]").map(p=>({label:p.label,descriptors:p.descriptors.map(d=>Float32Array.from(d))}));
+let customers=JSON.parse(localStorage.getItem("customers"))||[
+    {name:"Ahmet",debt:300,payments:[{amount:50,date:"2025-08-10"}]},
+    {name:"Ayşe",debt:150,payments:[]},
+    {name:"Mehmet",debt:500,payments:[{amount:200,date:"2025-08-05"}]}
+];
+
+let faceProfiles=JSON.parse(localStorage.getItem("faceProfiles")||"[]").map(p=>({
+    label:p.label,
+    descriptors:p.descriptors.map(d=>new Float32Array(d))
+}));
+
 let currentCustomer=null;
 let debtChart,payChart;
+let faceMatcher=null;
 
 function saveData(){localStorage.setItem("customers",JSON.stringify(customers));}
-function saveFaces(){localStorage.setItem("faceProfiles",JSON.stringify(faceProfiles));updateEnrollButton();}
+function saveFaces(){localStorage.setItem("faceProfiles",JSON.stringify(faceProfiles)); updateEnrollButton(); updateFaceMatcher();}
 function updateEnrollButton(){document.getElementById("btnEnroll").classList.toggle("hidden",faceProfiles.length>=FACE_LIMIT);}
+function updateFaceMatcher(){faceMatcher=null; if(faceProfiles.length>0){faceMatcher=new faceapi.FaceMatcher(faceProfiles.map(p=>new faceapi.LabeledFaceDescriptors(p.label,p.descriptors)),FACE_THRESHOLD);}}
 function money(n){return (Math.round((n+Number.EPSILON)*100)/100).toString().replace(".",",");}
 
-document.getElementById("btnPwdLogin").onclick=()=>{const val=document.getElementById("passwordInput").value;if(val===PASSWORD)enterApp("Şifre");else showErr("Şifre yanlış!");};
+document.getElementById("btnPwdLogin").onclick=()=>{
+    const val=document.getElementById("passwordInput").value;
+    if(val===PASSWORD) enterApp("Şifre");
+    else showErr("Şifre yanlış!");
+};
 document.getElementById("btnFaceLogin").onclick=()=>openCamera("login");
-document.getElementById("btnEnroll").onclick=()=>{if(faceProfiles.length>=FACE_LIMIT){showErr("En fazla 2 kişi kaydedilebilir.");return;}openCamera("enroll");};
-function showErr(msg){document.getElementById("error").innerText=msg;setTimeout(()=>{document.getElementById("error").innerText="";},3000);}
-function enterApp(method){document.getElementById("loginScreen").classList.add("hidden");document.getElementById("mainScreen").classList.remove("hidden");document.getElementById("welcomeMsg").innerText=`Merhaba ${method==="Şifre"?"Kullanıcı":"👋"}`;renderCustomers();renderStats();}
+document.getElementById("btnEnroll").onclick=()=>{
+    if(faceProfiles.length>=FACE_LIMIT){ showErr("En fazla 2 kişi kaydedilebilir."); return;}
+    openCamera("enroll");
+};
+function showErr(msg){document.getElementById("error").innerText=msg; setTimeout(()=>{document.getElementById("error").innerText="";},3000);}
+function enterApp(method){
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("mainScreen").classList.remove("hidden");
+    document.getElementById("welcomeMsg").innerText=`Merhaba ${method==="Şifre"?"Kullanıcı":"👋"}`;
+    renderCustomers();
+    renderStats();
+}
 
+// --- Customer render & operations ---
 function renderCustomers(){
-const list=document.getElementById("customerList");list.innerHTML="";
-customers.forEach((c,i)=>{
-const card=document.createElement("div");card.className="customer-card";
-let statusColor="#2ecc71",statusText="Ödendi";
-if(c.debt>500){statusColor="#e74c3c";statusText="Yüksek Borç";}
-else if(c.debt>0){statusColor="#f39c12";statusText="Borç Var";}
-const nameEl=document.createElement("div");nameEl.className="c-name";nameEl.textContent=c.name;
-const debtEl=document.createElement("div");debtEl.className="c-debt";debtEl.textContent=`${c.debt} TL`;
-const statusEl=document.createElement("div");statusEl.className="c-status";statusEl.style.background=statusColor;statusEl.textContent=statusText;
-const actions=document.createElement("div");actions.className="c-actions";
-const btnOpen=document.createElement("button");btnOpen.className="btn-mini btn-open";btnOpen.textContent="Aç";
-const btnDel=document.createElement("button");btnDel.className="btn-mini btn-delete";btnDel.textContent="Sil";
-btnOpen.onclick=e=>{e.stopPropagation();showDetail(i);};
-btnDel.onclick=e=>{e.stopPropagation();deleteCustomer(i);};
-actions.appendChild(btnOpen);actions.appendChild(btnDel);
-card.appendChild(nameEl);card.appendChild(debtEl);card.appendChild(statusEl);card.appendChild(actions);
-card.onclick=()=>showDetail(i);list.appendChild(card);
-});
+    const list=document.getElementById("customerList"); list.innerHTML="";
+    customers.forEach((c,i)=>{
+        const card=document.createElement("div"); card.className="customer-card";
+        let statusColor="#2ecc71",statusText="Ödendi";
+        if(c.debt>500){statusColor="#e74c3c"; statusText="Yüksek Borç";}
+        else if(c.debt>0){statusColor="#f39c12"; statusText="Borç Var";}
+        const nameEl=document.createElement("div"); nameEl.className="c-name"; nameEl.textContent=c.name;
+        const debtEl=document.createElement("div"); debtEl.className="c-debt"; debtEl.textContent=`${c.debt} TL`;
+        const statusEl=document.createElement("div"); statusEl.className="c-status"; statusEl.style.background=statusColor; statusEl.textContent=statusText;
+        const actions=document.createElement("div"); actions.className="c-actions";
+        const btnOpen=document.createElement("button"); btnOpen.className="btn-mini btn-open"; btnOpen.textContent="Aç";
+        const btnDel=document.createElement("button"); btnDel.className="btn-mini btn-delete"; btnDel.textContent="Sil";
+        btnOpen.onclick=e=>{e.stopPropagation(); showDetail(i);};
+        btnDel.onclick=e=>{e.stopPropagation(); deleteCustomer(i);};
+        actions.appendChild(btnOpen); actions.appendChild(btnDel);
+        card.appendChild(nameEl); card.appendChild(debtEl); card.appendChild(statusEl); card.appendChild(actions);
+        card.onclick=()=>showDetail(i); list.appendChild(card);
+    });
 }
-
 function showDetail(index){
-currentCustomer=customers[index];document.getElementById("mainScreen").classList.add("hidden");document.getElementById("customerDetail").classList.remove("hidden");document.getElementById("detailName").innerText=currentCustomer.name;document.getElementById("detailTotal").innerText=currentCustomer.debt;renderPayments();updateDetailStatus();
+    currentCustomer=customers[index];
+    document.getElementById("mainScreen").classList.add("hidden");
+    document.getElementById("customerDetail").classList.remove("hidden");
+    document.getElementById("detailName").innerText=currentCustomer.name;
+    document.getElementById("detailTotal").innerText=currentCustomer.debt;
+    renderPayments();
+    updateDetailStatus();
 }
-function closeDetail(){currentCustomer=null;document.getElementById("customerDetail").classList.add("hidden");document.getElementById("mainScreen").classList.remove("hidden");renderCustomers();renderStats();}
-function renderPayments(){const ul=document.getElementById("paymentHistory");ul.innerHTML="";currentCustomer.payments.forEach(p=>{const li=document.createElement("li");li.innerHTML=`<span>${p.date}</span><span>${p.amount} TL</span>`;ul.appendChild(li);});}
-function addPayment(){const val=parseFloat(document.getElementById("paymentAmount").value);if(!isNaN(val)&&val>0&&val<=currentCustomer.debt){const today=new Date().toISOString().split('T')[0];currentCustomer.payments.push({amount:val,date:today});currentCustomer.debt=Math.max(0,+(currentCustomer.debt-val).toFixed(2));saveData();document.getElementById("paymentAmount").value="";document.getElementById("detailTotal").innerText=currentCustomer.debt;renderPayments();updateDetailStatus();renderCustomers();renderStats();alert("Ödeme kaydedildi ✅");}else alert("Geçersiz tutar!");}
-function updateDetailStatus(){const statusEl=document.getElementById("detailStatus");if(currentCustomer.debt===0){statusEl.innerText="Borç Yok";statusEl.style.color="#2ecc71";}else if(currentCustomer.debt<=200){statusEl.innerText="Düşük Borç";statusEl.style.color="#f39c12";}else{statusEl.innerText="Yüksek Borç";statusEl.style.color="#e74c3c";}}
-function showAddCustomer(){document.getElementById("popup").classList.add("show");document.getElementById("newCustomerName").value="";document.getElementById("newCustomerDebt").value="";}
+function closeDetail(){currentCustomer=null; document.getElementById("customerDetail").classList.add("hidden"); document.getElementById("mainScreen").classList.remove("hidden"); renderCustomers(); renderStats();}
+function renderPayments(){
+    const ul=document.getElementById("paymentHistory"); ul.innerHTML="";
+    currentCustomer.payments.forEach(p=>{
+        const li=document.createElement("li"); li.innerHTML=`<span>${p.date}</span><span>${p.amount} TL</span>`; ul.appendChild(li);
+    });
+}
+function addPayment(){
+    const val=parseFloat(document.getElementById("paymentAmount").value);
+    if(!isNaN(val)&&val>0&&val<=currentCustomer.debt){
+        const today=new Date().toISOString().split('T')[0];
+        currentCustomer.payments.push({amount:val,date:today});
+        currentCustomer.debt=Math.max(0,+(currentCustomer.debt-val).toFixed(2));
+        saveData();
+        document.getElementById("paymentAmount").value="";
+        document.getElementById("detailTotal").innerText=currentCustomer.debt;
+        renderPayments();
+        updateDetailStatus();
+        renderCustomers();
+        renderStats();
+        alert("Ödeme kaydedildi ✅");
+    }else alert("Geçersiz tutar!");
+}
+function updateDetailStatus(){
+    const statusEl=document.getElementById("detailStatus");
+    if(currentCustomer.debt===0){statusEl.innerText="Borç Yok"; statusEl.style.color="#2ecc71";}
+    else if(currentCustomer.debt<=200){statusEl.innerText="Düşük Borç"; statusEl.style.color="#f39c12";}
+    else{statusEl.innerText="Yüksek Borç"; statusEl.style.color="#e74c3c";}
+}
+function showAddCustomer(){document.getElementById("popup").classList.add("show"); document.getElementById("newCustomerName").value=""; document.getElementById("newCustomerDebt").value="";}
 function closePopup(){document.getElementById("popup").classList.remove("show");}
-function addCustomer(){const name=document.getElementById("newCustomerName").value.trim();const debt=parseFloat(document.getElementById("newCustomerDebt").value);if(name===""){alert("Müşteri adı boş olamaz!");return;}if(customers.some(c=>c.name.toLowerCase()===name.toLowerCase())){alert("Bu müşteri zaten var!");return;}if(!isNaN(debt)&&debt<0){alert("Borç negatif olamaz!");return;}
-customers.push({name,debt,isDebt:true,payments:[]});
-saveData();closePopup();renderCustomers();renderStats();alert("Müşteri eklendi ✅");}
-
-// Silme fonksiyonu
+function addCustomer(){
+    const name=document.getElementById("newCustomerName").value.trim();
+    const debt=parseFloat(document.getElementById("newCustomerDebt").value);
+    if(name===""){alert("Müşteri adı boş olamaz!"); return;}
+    if(customers.some(c=>c.name.toLowerCase()===name.toLowerCase())){alert("Bu isim zaten kayıtlı!"); return;}
+    if(isNaN(debt) || debt<0){alert("Geçerli bir borç girin!"); return;}
+    customers.push({name,debt,payments:[]});
+    saveData();
+    closePopup();
+    renderCustomers();
+    renderStats();
+    alert("Müşteri eklendi ✅");
+}
 function deleteCustomer(index){
-if(confirm(`${customers[index].name} silinsin mi?`)){
-customers.splice(index,1);saveData();renderCustomers();renderStats();
-}
+    if(confirm(`${customers[index].name} silinsin mi?`)){
+        customers.splice(index,1);
+        saveData();
+        renderCustomers();
+        renderStats();
+    }
 }
 
-// İstatistikler
+// --- Stats charts ---
 function renderStats(){
-const debtCtx=document.getElementById("debtChart").getContext("2d");
-const payCtx=document.getElementById("paymentChart").getContext("2d");
-const labels=customers.map(c=>c.name);
-const debts=customers.map(c=>c.debt);
-if(debtChart)debtChart.destroy();
-if(payChart)payChart.destroy();
-debtChart=new Chart(debtCtx,{type:'bar',data:{labels,datasets:[{label:'Borç (TL)',data:debts,backgroundColor:'gold'}]},options:{responsive:true,plugins:{legend:{display:false}}}});
-const paymentsSum=customers.map(c=>c.payments.reduce((a,b)=>a+b.amount,0));
-payChart=new Chart(payCtx,{type:'bar',data:{labels,datasets:[{label:'Ödemeler (TL)',data:paymentsSum,backgroundColor:'#2ecc71'}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+    const labels=customers.map(c=>c.name);
+    const debts=customers.map(c=>c.debt);
+    const payments=customers.map(c=>c.payments.reduce((a,p)=>a+p.amount,0));
+
+    if(debtChart) debtChart.destroy();
+    if(payChart) payChart.destroy();
+
+    const ctx1=document.getElementById("debtChart").getContext("2d");
+    debtChart=new Chart(ctx1,{type:'bar',data:{labels, datasets:[{label:'Borç (TL)',data:debts,backgroundColor:'gold'}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+
+    const ctx2=document.getElementById("paymentChart").getContext("2d");
+    payChart=new Chart(ctx2,{type:'bar',data:{labels, datasets:[{label:'Ödeme (TL)',data:payments,backgroundColor:'#2ecc71'}]},options:{responsive:true,plugins:{legend:{display:false}}}});
 }
 
-// Yedekleme
+// --- Backup / Restore ---
 function downloadBackup(){
-const blob=new Blob([JSON.stringify({customers,faceProfiles})],{type:'application/json'});
-const url=URL.createObjectURL(blob);
-const a=document.createElement("a");a.href=url;a.download="backup.json";a.click();URL.revokeObjectURL(url);
+    const data=JSON.stringify({customers,faceProfiles});
+    const blob=new Blob([data],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download="bakkal_backup.json"; a.click();
+    URL.revokeObjectURL(url);
 }
 function uploadBackup(){
-const input=document.createElement("input");input.type="file";input.accept="application/json";
-input.onchange=e=>{
-const file=input.files[0];if(!file)return;
-const reader=new FileReader();reader.onload=ev=>{
-try{
-const data=JSON.parse(ev.target.result);if(data.customers)data.customers.forEach(c=>{if(!c.payments)c.payments=[]});customers=data.customers||[];faceProfiles=(data.faceProfiles||[]).map(p=>({label:p.label,descriptors:p.descriptors.map(d=>Float32Array.from(d))}));saveData();saveFaces();renderCustomers();renderStats();alert("Yedek yüklendi ✅");
-}catch(err){alert("Hatalı dosya!");}
-};reader.readAsText(file);
-};input.click();
+    const input=document.createElement("input");
+    input.type="file"; input.accept=".json";
+    input.onchange=()=>{const file=input.files[0]; const reader=new FileReader();
+        reader.onload=e=>{
+            try{
+                const data=JSON.parse(e.target.result);
+                if(data.customers && data.faceProfiles){
+                    customers=data.customers;
+                    faceProfiles=data.faceProfiles.map(p=>({label:p.label, descriptors:p.descriptors.map(d=>new Float32Array(d))}));
+                    saveData(); saveFaces(); renderCustomers(); renderStats();
+                    alert("Yedek yüklendi ✅");
+                }else alert("Geçersiz yedek dosyası!");
+            }catch(err){alert("Dosya okunamadı!");}
+        };
+        reader.readAsText(file);
+    };
+    input.click();
 }
 
-// Çıkış
-function logout(){document.getElementById("mainScreen").classList.add("hidden");document.getElementById("loginScreen").classList.remove("hidden");}
+// --- Logout ---
+function logout(){document.getElementById("mainScreen").classList.add("hidden"); document.getElementById("loginScreen").classList.remove("hidden");}
 
-// Yüz tanıma kamera fonksiyonları
-let video=document.getElementById("video"),overlay=document.getElementById("overlay"),camCtx=overlay.getContext("2d");
-let faceMatcher,currentMode="login";
-
+// --- Camera / Face API ---
 async function openCamera(mode){
-currentMode=mode;
-document.getElementById("cameraModal").classList.add("show");
-document.getElementById("camTitle").innerText=mode==="login"?"Yüzle Giriş":"Yüz Kaydı";
-await loadModels();
-navigator.mediaDevices.getUserMedia({video:true}).then(stream=>{video.srcObject=stream;}).catch(()=>alert("Kamera açılamadı!"));
-requestAnimationFrame(detectFaces);
+    document.getElementById("cameraModal").classList.add("show");
+    document.getElementById("camTitle").innerText=(mode==="login")?"Yüzle Giriş":"Yeni Yüz Kaydı";
+    const video=document.getElementById("video");
+    const stream=await navigator.mediaDevices.getUserMedia({video:true});
+    video.srcObject=stream;
+
+    await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+    ]);
+
+    const overlay=document.getElementById("overlay");
+    overlay.width=video.videoWidth; overlay.height=video.videoHeight;
+    const ctx=overlay.getContext("2d");
+
+    let captured=false;
+    const interval=setInterval(async ()=>{
+        if(video.readyState!==4) return;
+        const detections=await faceapi.detectAllFaces(video,new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+        ctx.clearRect(0,0,overlay.width,overlay.height);
+        detections.forEach(det=>faceapi.draw.drawDetections(overlay,[det]));
+        if(detections.length>0 && mode==="login" && !captured){
+            captured=true;
+            const bestMatch=faceMatcher?faceMatcher.findBestMatch(detections[0].descriptor):null;
+            if(bestMatch && bestMatch.label){ closeCamera(); enterApp("Yüz"); }
+            else showErr("Tanımlanamadı!");
+        }
+    },200);
+
+    document.getElementById("btnCapture").onclick=async ()=>{
+        if(mode==="enroll"){
+            const label=prompt("Bu kişinin adı:").trim();
+            if(!label){alert("Ad girilmedi!"); return;}
+            const detections=await faceapi.detectSingleFace(video,new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+            if(!detections){alert("Yüz bulunamadı!"); return;}
+            faceProfiles.push({label,descriptors:[detections.descriptor]});
+            saveFaces();
+            alert("Yüz kaydedildi ✅");
+            closeCamera();
+        }
+    };
+    document.getElementById("btnCloseCam").onclick=closeCamera;
+
+    function closeCamera(){
+        clearInterval(interval);
+        stream.getTracks().forEach(track=>track.stop());
+        document.getElementById("cameraModal").classList.remove("show");
+    }
 }
 
-document.getElementById("btnCloseCam").onclick=closeCamera;
-function closeCamera(){let tracks=video.srcObject?.getTracks();if(tracks)tracks.forEach(t=>t.stop());document.getElementById("cameraModal").classList.remove("show");camCtx.clearRect(0,0,overlay.width,overlay.height);}
-
-async function loadModels(){
-await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-if(faceProfiles.length>0)faceMatcher=new faceapi.FaceMatcher(faceProfiles.map(p=>new faceapi.LabeledFaceDescriptors(p.label,p.descriptors)),FACE_THRESHOLD);
-}
-
-async function detectFaces(){
-if(video.paused||video.ended){requestAnimationFrame(detectFaces);return;}
-overlay.width=video.videoWidth;overlay.height=video.videoHeight;
-const detections=await faceapi.detectAllFaces(video,new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
-camCtx.clearRect(0,0,overlay.width,overlay.height);
-detections.forEach(d=>{const box=d.detection.box;camCtx.strokeStyle="gold";camCtx.lineWidth=2;camCtx.strokeRect(box.x,box.y,box.width,box.height);});
-if(detections.length>0){
-const d= detections[0].descriptor;
-if(currentMode==="login" && faceMatcher){
-const match=faceMatcher.findBestMatch(d);
-if(match.label!=="unknown"){closeCamera();enterApp("Yüz");return;}
-}else if(currentMode==="enroll"){
-const name=prompt("İsminizi girin:");if(!name){alert("İsim gerekli!");return;}
-faceProfiles.push({label:name,descriptors:[d]});saveFaces();closeCamera();alert("Yüz kaydedildi ✅");return;
-}
-}
-requestAnimationFrame(detectFaces);
-}
-
-// Başlatırken enroll buton güncelle
+// --- Initialize ---
 updateEnrollButton();
+updateFaceMatcher();
 </script>
 </body>
 </html>
